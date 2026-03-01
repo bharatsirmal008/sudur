@@ -14,7 +14,16 @@ export const authOptions = {
             },
             async authorize(credentials) {
                 try {
-                    const API_BASE = process.env.NEXTAUTH_URL === "http://localhost:3000" ? "http://localhost:5000" : (process.env.BACKEND_API_URL || "");
+                    // In production, fetch MUST be an absolute URL on the server.
+                    let API_BASE = (process.env.NEXTAUTH_URL === "http://localhost:3000" || !process.env.NEXTAUTH_URL)
+                        ? "http://localhost:5000"
+                        : (process.env.BACKEND_API_URL || "");
+
+                    // Fallback for common development scenarios or missing env vars
+                    if (!API_BASE && typeof window === 'undefined') {
+                        API_BASE = "https://sudurapi.vercel.app"; // Defaulting to your known backend URL
+                    }
+
                     const res = await fetch(`${API_BASE}/api/login`, {
                         method: "POST",
                         body: JSON.stringify(credentials),

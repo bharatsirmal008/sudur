@@ -12,7 +12,15 @@ export default async function UserDonationsPage() {
     }
 
     // Fetch real donations for the logged-in user from the Express Server
-    const API_BASE = process.env.NEXTAUTH_URL === "http://localhost:3000" ? "http://localhost:5000" : (process.env.BACKEND_API_URL || "");
+    let API_BASE = (process.env.NEXTAUTH_URL === "http://localhost:3000" || !process.env.NEXTAUTH_URL)
+        ? "http://localhost:5000"
+        : (process.env.BACKEND_API_URL || "");
+
+    // Fallback if environment variable is not yet set in Vercel
+    if (!API_BASE) {
+        API_BASE = "https://sudurapi.vercel.app";
+    }
+
     const res = await fetch(`${API_BASE}/api/user/donations?email=${encodeURIComponent(session.user.email || '')}`, {
         cache: 'no-store'
     });
