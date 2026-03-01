@@ -39,7 +39,7 @@ export default function AdminVolunteersPage() {
     const [formData, setFormData] = useState<Volunteer>({
         name: "",
         role: "Volunteer",
-        location: "Kathmandu",
+        location: "Khirsain",
         image: "",
         socials: { instagram: "", linkedin: "", facebook: "" }
     });
@@ -98,7 +98,7 @@ export default function AdminVolunteersPage() {
         setFormData({
             name: "",
             role: "Volunteer",
-            location: "Kathmandu",
+            location: "Khirsain",
             image: "",
             socials: { instagram: "", linkedin: "", facebook: "" }
         });
@@ -292,10 +292,13 @@ export default function AdminVolunteersPage() {
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                         >
-                                            <option value="Kathmandu">Kathmandu</option>
-                                            <option value="Nepalgunj">Nepalgunj</option>
-                                            <option value="Pokhara">Pokhara</option>
-                                            <option value="Dharan">Dharan</option>
+                                            <option value="Khirsain">Khirsain</option>
+                                            <option value="Bagleka">Bagleka</option>
+                                            <option value="Sanagaun">Sanagaun</option>
+                                            <option value="Pokhari">Pokhari</option>
+                                            <option value="Gajari">Gajari</option>
+                                            <option value="Gairagaun">Gairagaun</option>
+                                            <option value="Kadamandu">Kadamandu</option>
                                         </select>
                                     </div>
 

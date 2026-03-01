@@ -16,7 +16,7 @@ async function seed() {
             {
                 name: "ANIL BANIYA",
                 role: "Volunteer",
-                location: "Kathmandu",
+                location: "Khirsain",
                 image: "/team_member_1.png",
                 socials: { facebook: "#", instagram: "#", linkedin: "#" },
                 createdAt: new Date()
@@ -24,7 +24,7 @@ async function seed() {
             {
                 name: "ANJAL MANANDAR",
                 role: "Volunteer",
-                location: "Nepalgunj",
+                location: "Bagleka",
                 image: "/team_member_2.png",
                 socials: { facebook: "#", instagram: "#", linkedin: "#" },
                 createdAt: new Date()
@@ -32,7 +32,7 @@ async function seed() {
             {
                 name: "APSON G.C.",
                 role: "Volunteer",
-                location: "Pokhara",
+                location: "Sanagaun",
                 image: "/team_member_3.png",
                 socials: { facebook: "#", instagram: "#", linkedin: "#" },
                 createdAt: new Date()
@@ -40,7 +40,7 @@ async function seed() {
             {
                 name: "SARAH JENKINS",
                 role: "Volunteer",
-                location: "Dharan",
+                location: "Pokhari",
                 image: "/team_member_4.png",
                 socials: { facebook: "#", instagram: "#", linkedin: "#" },
                 createdAt: new Date()

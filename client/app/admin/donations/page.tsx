@@ -10,7 +10,7 @@ interface Donation {
     donorName: string;
     donorEmail: string;
     phone?: string;
-    address: {
+    address?: {
         street: string;
         city: string;
         state: string;
@@ -45,7 +45,7 @@ export default function AdminDonationsPage() {
         fetchDonations();
     }, []);
 
-    const totalDonations = donations.reduce((acc, curr) => acc + curr.amount, 0);
+    const totalDonations = donations.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
@@ -119,7 +119,7 @@ export default function AdminDonationsPage() {
                                         </td>
                                         <td className="p-6 align-top">
                                             <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-black text-lg py-1.5 px-3 rounded-lg inline-block border border-emerald-100 dark:border-emerald-800/30">
-                                                ${d.amount.toFixed(2)}
+                                                ${(d.amount || 0).toFixed(2)}
                                             </div>
                                             <p className="text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider">{d.paymentMethod}</p>
                                         </td>
@@ -132,8 +132,14 @@ export default function AdminDonationsPage() {
                                             <div className="flex items-start gap-2 max-w-[200px]">
                                                 <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                                                 <span className="text-sm font-medium leading-relaxed">
-                                                    {d.address.city}, {d.address.state} <br />
-                                                    <span className="text-xs text-slate-400 uppercase">{d.address.country}</span>
+                                                    {d.address ? (
+                                                        <>
+                                                            {d.address.city}, {d.address.state} <br />
+                                                            <span className="text-xs text-slate-400 uppercase">{d.address.country}</span>
+                                                        </>
+                                                    ) : (
+                                                        "Location N/A"
+                                                    )}
                                                 </span>
                                             </div>
                                         </td>

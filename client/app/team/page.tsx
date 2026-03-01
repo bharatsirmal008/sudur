@@ -18,7 +18,7 @@ interface TeamMember {
     };
 }
 
-const locations = ["All Volunteers", "Kathmandu", "Nepalgunj", "Pokhara", "Dharan"];
+const locations = ["All Volunteers", "Khirsain", "Bagleka", "Sanagaun", "Pokhari", "Gajari", "Gairagaun", "Kadamandu"];
 
 export default function TeamPage() {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);

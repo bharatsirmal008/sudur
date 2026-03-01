@@ -228,9 +228,24 @@ app.delete('/api/donations', async (req, res) => {
 
 app.post('/api/donate', async (req, res) => {
     try {
-        const { amount, name, email, purpose, paymentMethod } = req.body;
+        const { amount, name, email, phone, address, city, state, zip, country, purpose, message, paymentMethod } = req.body;
         const result = await db.collection("donations").insertOne({
-            amount: parseFloat(amount), donorName: name, donorEmail: email, purpose, paymentMethod, status: "Completed", createdAt: new Date()
+            amount: parseFloat(amount),
+            donorName: name,
+            donorEmail: email,
+            phone,
+            address: {
+                street: address,
+                city,
+                state,
+                zip,
+                country
+            },
+            purpose,
+            message,
+            paymentMethod,
+            status: "Completed",
+            createdAt: new Date()
         });
 
         const receiptText = `Thank you ${name} for donating $${amount}.`;
