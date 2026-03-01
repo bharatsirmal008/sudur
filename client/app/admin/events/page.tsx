@@ -59,6 +59,11 @@ export default function AdminEventsPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ image: base64Image })
                 });
+
+                if (!res.ok) {
+                    throw new Error(`Upload failed with status ${res.status}`);
+                }
+
                 const data = await res.json();
                 if (data.url) {
                     setFormData(prev => ({ ...prev, image: data.url }));
