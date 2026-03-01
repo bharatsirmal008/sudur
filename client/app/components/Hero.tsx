@@ -3,13 +3,22 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Heart } from "lucide-react";
+import Image from "next/image";
 
 export default function Hero() {
     return (
-        <section className="relative h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-            {/* Background Decorative Blobs */}
-            <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-96 h-96 bg-purple-300 dark:bg-purple-900/30 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-50 animate-blob"></div>
-            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-96 h-96 bg-indigo-300 dark:bg-indigo-900/30 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+        <section className="relative h-[90vh] flex items-center justify-center overflow-hidden bg-slate-900">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0">
+                <Image
+                    src="/hero_bg.jpg"
+                    alt="Mountain Landscape Background"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-900/80" />
+            </div>
 
             <div className="container px-4 md:px-6 relative z-10 text-center">
                 <motion.div
