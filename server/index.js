@@ -293,4 +293,8 @@ app.post('/api/upload', async (req, res) => {
 });
 // END OF ROUTES
 
+app.get('/', (req, res) => {
+    res.send('SUDUR Backend API is running!');
+});
+
 module.exports = app;
