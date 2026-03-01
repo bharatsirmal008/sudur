@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-outfit), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.kosmik-title {
+  font-family: var(--font-space-grotesk), sans-serif;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+}
