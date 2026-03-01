@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB tracking
+// MongoDB connection management
 let db;
 const { ServerApiVersion } = require('mongodb');
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -21,19 +21,26 @@ const client = new MongoClient(process.env.MONGODB_URI, {
     }
 });
 
-async function startServer() {
+// Middleware to ensure DB connection
+app.use(async (req, res, next) => {
     try {
-        const connectedClient = await client.connect();
-        db = connectedClient.db('sudur');
-        console.log("Connected to MongoDB");
-
-        const PORT = process.env.PORT || 5000;
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+        if (!db) {
+            await client.connect();
+            db = client.db('sudur');
+            console.log("Connected to MongoDB via middleware");
+        }
+        next();
     } catch (err) {
         console.error("Failed to connect to MongoDB", err);
+        res.status(500).json({ message: "Database connection failed" });
     }
+});
+
+// Local server startup
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Local server running on port ${PORT}`));
 }
-startServer();
 
 // Email Transporter
 const transporter = nodemailer.createTransport({
