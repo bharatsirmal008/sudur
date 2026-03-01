@@ -66,7 +66,7 @@ export default function AdminDonationsPage() {
                     </div>
                     <div>
                         <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Total Raised</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white">${totalDonations.toFixed(2)}</p>
+                        <p className="text-3xl font-black text-slate-900 dark:text-white">Rs. {totalDonations.toLocaleString()}</p>
                     </div>
                 </div>
             </div>
@@ -119,7 +119,7 @@ export default function AdminDonationsPage() {
                                         </td>
                                         <td className="p-6 align-top">
                                             <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-black text-lg py-1.5 px-3 rounded-lg inline-block border border-emerald-100 dark:border-emerald-800/30">
-                                                ${(d.amount || 0).toFixed(2)}
+                                                Rs. {(d.amount || 0).toLocaleString()}
                                             </div>
                                             <p className="text-xs text-slate-500 mt-2 font-medium uppercase tracking-wider">{d.paymentMethod}</p>
                                         </td>

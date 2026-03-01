@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ArrowLeft, CreditCard, User, MapPin, CheckCircle, Loader2 } from "lucide-react";
+import { Heart, ArrowLeft, CreditCard, User, MapPin, CheckCircle, Loader2, QrCode } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -32,8 +32,9 @@ export default function DonatePage() {
         country: "India",
         purpose: "General Fund",
         message: "",
-        paymentMethod: "Credit Card"
+        paymentMethod: "eSewa"
     });
+    const [showQR, setShowQR] = useState(false);
 
     const handleAmountSelect = (val: string) => {
         setFormData({ ...formData, amount: val });
@@ -56,7 +57,28 @@ export default function DonatePage() {
         setIsSubmitting(true);
 
         try {
-            // Simulate API call
+            if (formData.paymentMethod === "eSewa") {
+                const res = await fetch("/api/nepal/esewa/initiate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        amount: formData.amount,
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        purpose: formData.purpose
+                    })
+                });
+
+                if (res.ok) {
+                    setShowQR(true);
+                } else {
+                    alert("Failed to initiate eSewa payment. Please try again.");
+                }
+                return;
+            }
+
+            // Simulate API call for other methods
             const res = await fetch("/api/donate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -132,7 +154,7 @@ export default function DonatePage() {
                                 >
                                     <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Select Donation Amount</h2>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        {["10", "25", "50", "100"].map((amt) => (
+                                        {["100", "500", "1000", "5000"].map((amt) => (
                                             <button
                                                 key={amt}
                                                 type="button"
@@ -142,12 +164,12 @@ export default function DonatePage() {
                                                     : "border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 text-slate-600 dark:text-slate-400"
                                                     }`}
                                             >
-                                                ${amt}
+                                                Rs. {amt}
                                             </button>
                                         ))}
                                     </div>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">$</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">Rs.</span>
                                         <input
                                             type="number"
                                             name="amount"
@@ -239,7 +261,8 @@ export default function DonatePage() {
                                         <button
                                             type="button"
                                             onClick={nextStep}
-                                            className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all"
+                                            disabled={!formData.name || !formData.email}
+                                            className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Next: Address
                                         </button>
@@ -324,7 +347,8 @@ export default function DonatePage() {
                                         <button
                                             type="button"
                                             onClick={nextStep}
-                                            className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all"
+                                            disabled={!formData.address || !formData.city || !formData.state || !formData.zip || !formData.country}
+                                            className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Next: Payment
                                         </button>
@@ -343,9 +367,7 @@ export default function DonatePage() {
                                     <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Payment Method</h2>
                                     <div className="grid grid-cols-1 gap-4">
                                         {[
-                                            { id: "Credit Card", icon: CreditCard, label: "Credit / Debit Card" },
-                                            { id: "PayPal", icon: Heart, label: "PayPal" },
-                                            { id: "Bank Transfer", icon: MapPin, label: "Bank Transfer" }
+                                            { id: "eSewa", icon: QrCode, label: "eSewa (Nepal QR)" },
                                         ].map((method) => (
                                             <button
                                                 key={method.id}
@@ -369,11 +391,54 @@ export default function DonatePage() {
                                         ))}
                                     </div>
 
-                                    <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
-                                        <p className="text-sm text-indigo-700 dark:text-indigo-400">
-                                            In this demonstration, selecting "Complete Donation" will securely save your contribution to our database.
-                                        </p>
-                                    </div>
+                                    {showQR && qrUrl && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-600 flex flex-col items-center text-center space-y-4"
+                                        >
+                                            <div className="bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                                Scan to Pay with eSewa
+                                            </div>
+                                            <div className="bg-white p-4 rounded-xl shadow-inner border border-slate-100 overflow-hidden">
+                                                <img
+                                                    src="/esewa_qr.jpeg"
+                                                    alt="eSewa QR Code"
+                                                    className="w-[200px] h-[200px] object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-sm text-slate-500 max-w-xs">
+                                                Open your eSewa app and scan this QR code to complete the payment of <span className="font-bold text-slate-900 dark:text-white">Rs. {formData.amount}</span>.
+                                            </p>
+                                            <div className="flex flex-col w-full gap-2">
+                                                <Link
+                                                    href={qrUrl}
+                                                    target="_blank"
+                                                    className="inline-flex items-center justify-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                                                >
+                                                    <ExternalLink className="w-4 h-4" />
+                                                    Open Payment Page Directly
+                                                </Link>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowQR(false)}
+                                                    className="text-xs text-slate-400 hover:text-slate-600 underline"
+                                                >
+                                                    Cancel / Change Method
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {!showQR && (
+                                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
+                                            <p className="text-sm text-indigo-700 dark:text-indigo-400">
+                                                {formData.paymentMethod === "eSewa"
+                                                    ? "Click 'Show QR Code' to pay securely using eSewa."
+                                                    : "In this demonstration, selecting 'Complete Donation' will securely save your contribution to our database."}
+                                            </p>
+                                        </div>
+                                    )}
 
                                     <div className="flex gap-4 pt-4">
                                         <button
@@ -391,7 +456,7 @@ export default function DonatePage() {
                                             {isSubmitting ? (
                                                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
                                             ) : (
-                                                "Complete Donation"
+                                                formData.paymentMethod === "eSewa" ? "Show QR Code" : "Complete Donation"
                                             )}
                                         </button>
                                     </div>
