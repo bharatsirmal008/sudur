@@ -79,18 +79,14 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-slate-900 shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
-              >
-                Join Now
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-6 py-2.5 text-sm font-bold text-white dark:text-slate-900 shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-[0.98]"
+                >
+                  Sign In
+                </Link>
+              </>
             </>
           )}
         </div>
@@ -141,20 +137,15 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link
-                    href="/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full text-center text-sm font-medium text-slate-700 dark:text-slate-200 py-2.5 border border-slate-200 dark:border-slate-800 rounded-full"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full text-center inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-slate-900"
-                  >
-                    Join Now
-                  </Link>
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full text-center inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-5 py-3 text-sm font-bold text-white dark:text-slate-900"
+                    >
+                      Sign In
+                    </Link>
+                  </>
                 </>
               )}
             </div>

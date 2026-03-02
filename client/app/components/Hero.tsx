@@ -55,7 +55,7 @@ export default function Hero() {
                         className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
                     >
                         <Link
-                            href="/register"
+                            href="/login"
                             className="inline-flex h-12 items-center justify-center rounded-full bg-indigo-600 px-8 text-base font-medium text-white shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-200 transition-all duration-300 w-full sm:w-auto hover:-translate-y-0.5"
                         >
                             Join as Member
