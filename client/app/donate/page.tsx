@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ArrowLeft, CreditCard, User, MapPin, CheckCircle, Loader2, QrCode } from "lucide-react";
+import {
+    Heart,
+    ArrowLeft,
+    CreditCard,
+    User,
+    MapPin,
+    CheckCircle,
+    Loader2,
+    QrCode,
+    ExternalLink
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -11,7 +21,7 @@ const STEPS = [
     { id: 1, name: "Amount", icon: Heart },
     { id: 2, name: "Details", icon: User },
     { id: 3, name: "Address", icon: MapPin },
-    { id: 4, name: "Payment", icon: CreditCard },
+    { id: 4, name: "Payment", icon: QrCode },
 ];
 
 export default function DonatePage() {
@@ -32,9 +42,8 @@ export default function DonatePage() {
         country: "India",
         purpose: "General Fund",
         message: "",
-        paymentMethod: "eSewa"
+        paymentMethod: "QR Code"
     });
-    const [showQR, setShowQR] = useState(false);
 
     const handleAmountSelect = (val: string) => {
         setFormData({ ...formData, amount: val });
@@ -57,28 +66,7 @@ export default function DonatePage() {
         setIsSubmitting(true);
 
         try {
-            if (formData.paymentMethod === "eSewa") {
-                const res = await fetch("/api/nepal/esewa/initiate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        amount: formData.amount,
-                        name: formData.name,
-                        email: formData.email,
-                        phone: formData.phone,
-                        purpose: formData.purpose
-                    })
-                });
-
-                if (res.ok) {
-                    setShowQR(true);
-                } else {
-                    alert("Failed to initiate eSewa payment. Please try again.");
-                }
-                return;
-            }
-
-            // Simulate API call for other methods
+            // Simulate API call
             const res = await fetch("/api/donate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -332,8 +320,8 @@ export default function DonatePage() {
                                     </div>
                                     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mt-4">
                                         <div className="flex items-center gap-3 text-sm text-indigo-700 dark:text-indigo-400 font-medium">
-                                            <CreditCard className="w-5 h-5" />
-                                            <span>Secure donation portal will follow submission.</span>
+                                            <QrCode className="w-5 h-5" />
+                                            <span>Scan & Pay will follow after address details.</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-4 pt-4">
@@ -364,81 +352,28 @@ export default function DonatePage() {
                                     exit={{ opacity: 0, x: -20 }}
                                     className="space-y-6"
                                 >
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Payment Method</h2>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        {[
-                                            { id: "eSewa", icon: QrCode, label: "eSewa (Nepal QR)" },
-                                        ].map((method) => (
-                                            <button
-                                                key={method.id}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, paymentMethod: method.id })}
-                                                className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-200 ${formData.paymentMethod === method.id
-                                                    ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20"
-                                                    : "border-slate-100 dark:border-slate-800 hover:border-indigo-200"
-                                                    }`}
-                                            >
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${formData.paymentMethod === method.id ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
-                                                    <method.icon className="w-5 h-5" />
-                                                </div>
-                                                <span className={`font-bold ${formData.paymentMethod === method.id ? "text-slate-900 dark:text-white" : "text-slate-500"}`}>
-                                                    {method.label}
-                                                </span>
-                                                {formData.paymentMethod === method.id && (
-                                                    <CheckCircle className="ml-auto w-6 h-6 text-indigo-600" />
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Scan & Pay</h2>
 
-                                    {showQR && qrUrl && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-600 flex flex-col items-center text-center space-y-4"
-                                        >
-                                            <div className="bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                                Scan to Pay with eSewa
-                                            </div>
-                                            <div className="bg-white p-4 rounded-xl shadow-inner border border-slate-100 overflow-hidden">
-                                                <img
-                                                    src="/esewa_qr.jpeg"
-                                                    alt="eSewa QR Code"
-                                                    className="w-[200px] h-[200px] object-contain"
-                                                />
-                                            </div>
-                                            <p className="text-sm text-slate-500 max-w-xs">
-                                                Open your eSewa app and scan this QR code to complete the payment of <span className="font-bold text-slate-900 dark:text-white">Rs. {formData.amount}</span>.
-                                            </p>
-                                            <div className="flex flex-col w-full gap-2">
-                                                <Link
-                                                    href={qrUrl}
-                                                    target="_blank"
-                                                    className="inline-flex items-center justify-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
-                                                >
-                                                    <ExternalLink className="w-4 h-4" />
-                                                    Open Payment Page Directly
-                                                </Link>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowQR(false)}
-                                                    className="text-xs text-slate-400 hover:text-slate-600 underline"
-                                                >
-                                                    Cancel / Change Method
-                                                </button>
-                                            </div>
-                                        </motion.div>
-                                    )}
-
-                                    {!showQR && (
-                                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
-                                            <p className="text-sm text-indigo-700 dark:text-indigo-400">
-                                                {formData.paymentMethod === "eSewa"
-                                                    ? "Click 'Show QR Code' to pay securely using eSewa."
-                                                    : "In this demonstration, selecting 'Complete Donation' will securely save your contribution to our database."}
+                                    <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border-2 border-indigo-600 flex flex-col items-center text-center space-y-4">
+                                        <div className="bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                            Nepal QR Payment
+                                        </div>
+                                        <div className="bg-white p-4 rounded-xl shadow-inner border border-slate-100 overflow-hidden">
+                                            <img
+                                                src="/payment_qr.jpeg"
+                                                alt="Payment QR Code"
+                                                className="w-[200px] h-[200px] object-contain"
+                                            />
+                                        </div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
+                                            Scan this QR code with your mobile banking or wallet app to complete the payment of <span className="font-bold text-slate-900 dark:text-white">Rs. {formData.amount}</span>.
+                                        </p>
+                                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 w-full">
+                                            <p className="text-xs text-indigo-700 dark:text-indigo-400">
+                                                After scanning and paying, please click the button below to complete your donation record.
                                             </p>
                                         </div>
-                                    )}
+                                    </div>
 
                                     <div className="flex gap-4 pt-4">
                                         <button
@@ -456,7 +391,7 @@ export default function DonatePage() {
                                             {isSubmitting ? (
                                                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
                                             ) : (
-                                                formData.paymentMethod === "eSewa" ? "Show QR Code" : "Complete Donation"
+                                                "Complete Donation"
                                             )}
                                         </button>
                                     </div>
