@@ -32,29 +32,28 @@ export default function AdminLayout({
     const menuItems = [
         { name: "Overview", href: "/admin", icon: LayoutDashboard },
         { name: "Volunteers", href: "/admin/volunteers", icon: Users },
-        { name: "Donations", href: "/admin/donations", icon: BarChart3 },
         { name: "Events", href: "/admin/events", icon: Calendar },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+            <div className="min-h-screen flex items-center justify-center bg-black">
                 <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
             </div>
         );
     }
 
-    if (!session || (session?.user as any)?.role !== "admin") {
+    if (!session || (session?.user as { role?: string })?.role !== "admin") {
         return <AdminLogin />;
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
+        <div className="min-h-screen bg-black flex transition-colors duration-300 text-white">
             {/* Sidebar */}
             <aside
                 className={`${isSidebarOpen ? "w-64" : "w-20"
-                    } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-300 flex flex-col fixed inset-y-0 z-50`}
+                    } border-r border-slate-800 bg-[#050505] transition-all duration-300 flex flex-col fixed inset-y-0 z-50`}
             >
                 <div className="p-6 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
@@ -62,7 +61,7 @@ export default function AdminLayout({
                             <Heart className="w-4 h-4 text-white" />
                         </div>
                         {isSidebarOpen && (
-                            <span className="font-bold text-lg dark:text-white">AdminPanel</span>
+                            <span className="font-bold text-lg text-white">AdminPanel</span>
                         )}
                     </Link>
                 </div>
@@ -100,25 +99,25 @@ export default function AdminLayout({
             {/* Main Content */}
             <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"}`}>
                 {/* Header */}
-                <header className="h-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-40">
+                <header className="h-20 bg-black/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 z-40">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"
+                            className="p-2 hover:bg-slate-800 rounded-lg text-slate-400"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
-                        <h1 className="text-xl font-bold dark:text-white">
+                        <h1 className="text-xl font-bold text-white">
                             {menuItems.find(item => item.href === pathname)?.name || "Dashboard"}
                         </h1>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-sm font-bold dark:text-white">{session?.user?.name}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">System Admin</p>
+                            <p className="text-sm font-bold text-white">{session?.user?.name}</p>
+                            <p className="text-xs text-slate-400">System Admin</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-indigo-600">
+                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400">
                             {session?.user?.name?.[0]}
                         </div>
                     </div>

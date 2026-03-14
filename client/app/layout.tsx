@@ -18,28 +18,32 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata = {
-  title: "SUDUR - Community Platform",
-  description: "Official SUDUR Website for sustainable impact and community empowerment.",
-  keywords: ["SUDUR", "Community", "Empowerment", "Volunteering", "Donations", "NGO", "Non-profit", "Social Impact"],
-  authors: [{ name: "SUDUR Team" }],
+  title: "Youth Association Of Purbichauki",
+  description: "Official Youth Association Of Purbichauki Website for sustainable impact and community empowerment.",
+  keywords: ["Youth Association Of Purbichauki", "Community", "Empowerment", "Volunteering", "NGO", "Non-profit", "Social Impact"],
+  authors: [{ name: "Youth Association Of Purbichauki Team" }],
   openGraph: {
     title: {
-      default: "SUDUR - Community Platform",
-      template: "%s | SUDUR",
+      default: "Youth Association Of Purbichauki - Community Platform",
+      template: "%s | Youth Association Of Purbichauki",
     },
-    description: "Official SUDUR Website for sustainable impact and community empowerment.",
+    description: "Official Youth Association Of Purbichauki Website for sustainable impact and community empowerment.",
     type: "website",
     locale: "en_US",
-    siteName: "SUDUR Platform",
+    siteName: "Youth Association Of Purbichauki Platform",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SUDUR - Community Platform",
-    description: "Official SUDUR Website for sustainable impact and community empowerment.",
+    title: "Youth Association Of Purbichauki - Community Platform",
+    description: "Official Youth Association Of Purbichauki Website for sustainable impact and community empowerment.",
   },
   robots: {
     index: true,
     follow: true,
+  },
+  icons: {
+    icon: "/YAOP.png",
+    apple: "/YAOP.png",
   },
 };
 
@@ -47,8 +51,8 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${outfit.variable} ${spaceGrotesk.variable} scroll-smooth`} suppressHydrationWarning>
-      <body className="antialiased min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300 font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <body className="antialiased min-h-screen flex flex-col bg-black text-gray-200 transition-colors duration-300 font-sans">
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>
             <Navbar />
             <div className="flex-1">{children}</div>

@@ -150,36 +150,36 @@ export default function AdminVolunteersPage() {
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
             {/* Header Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0a0a0a] p-6 rounded-[2rem] border border-slate-800 shadow-sm">
                 <div>
-                    <h2 className="text-xl font-bold dark:text-white">Volunteer Roster</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Add, edit, or remove team members displayed on the frontend.</p>
+                    <h2 className="text-xl font-bold text-white">Volunteer Roster</h2>
+                    <p className="text-sm text-slate-400">Add, edit, or remove team members displayed on the frontend.</p>
                 </div>
                 <button
                     onClick={() => { resetForm(); setIsModalOpen(true); }}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                 >
                     <Plus className="w-5 h-5" /> Add Volunteer
                 </button>
             </div>
 
             {/* Volunteer List */}
-            <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="bg-[#0a0a0a] rounded-[2rem] border border-slate-800 shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
-                        <p className="text-slate-500">Loading roster...</p>
+                        <p className="text-slate-400">Loading roster...</p>
                     </div>
                 ) : volunteers.length === 0 ? (
                     <div className="text-center py-20">
-                        <Users className="w-16 h-16 text-slate-200 dark:text-slate-800 mx-auto mb-4" />
-                        <h3 className="text-lg font-bold dark:text-white">No volunteers found</h3>
-                        <p className="text-slate-500">Get started by adding your first team member.</p>
+                        <Users className="w-16 h-16 text-slate-800 mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-white">No volunteers found</h3>
+                        <p className="text-slate-400">Get started by adding your first team member.</p>
                     </div>
                 ) : (
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                            <tr className="border-b border-slate-800 bg-slate-900/50">
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Team Member</th>
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Role</th>
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Location</th>
@@ -188,47 +188,47 @@ export default function AdminVolunteersPage() {
                         </thead>
                         <tbody>
                             {volunteers.map((v) => (
-                                <tr key={v._id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <tr key={v._id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
                                     <td className="p-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-800">
                                                 {v.image ? (
                                                     <img src={v.image} alt={v.name} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-indigo-600 font-bold">
+                                                    <div className="w-full h-full flex items-center justify-center text-indigo-400 font-bold">
                                                         {v.name[0]}
                                                     </div>
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="font-bold dark:text-white">{v.name}</p>
+                                                <p className="font-bold text-white">{v.name}</p>
                                                 <div className="flex gap-2 mt-1">
-                                                    {v.socials.instagram && <Instagram className="w-3 h-3 text-slate-400" />}
-                                                    {v.socials.linkedin && <Linkedin className="w-3 h-3 text-slate-400" />}
-                                                    {v.socials.facebook && <Facebook className="w-3 h-3 text-slate-400" />}
+                                                    {v.socials.instagram && <Instagram className="w-3 h-3 text-slate-500" />}
+                                                    {v.socials.linkedin && <Linkedin className="w-3 h-3 text-slate-500" />}
+                                                    {v.socials.facebook && <Facebook className="w-3 h-3 text-slate-500" />}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="p-6">
-                                        <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold">
+                                        <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-bold">
                                             {v.role}
                                         </span>
                                     </td>
-                                    <td className="p-6 text-slate-500 dark:text-slate-400 font-medium">
+                                    <td className="p-6 text-slate-400 font-medium">
                                         {v.location}
                                     </td>
                                     <td className="p-6 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => openEdit(v)}
-                                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors"
+                                                className="p-2 hover:bg-slate-800 rounded-lg text-slate-500 transition-colors"
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(v._id!)}
-                                                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-500 hover:text-red-600 transition-colors"
+                                                className="p-2 hover:bg-red-900/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

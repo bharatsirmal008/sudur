@@ -62,7 +62,7 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = async (to, subject, text, html) => {
     try {
-        await transporter.sendMail({ from: `"SUDUR" <${process.env.GMAIL_USER}>`, to, subject, text, html });
+        await transporter.sendMail({ from: `"Youth Association Of Purbichauki" <${process.env.GMAIL_USER}>`, to, subject, text, html });
     } catch (error) {
         console.error("Email failed:", error);
     }
@@ -116,22 +116,18 @@ app.post('/api/login', async (req, res) => {
 // Dashboard
 app.get('/api/dashboard', async (req, res) => {
     try {
-        const donations = await db.collection("donations").find({}).toArray();
-        const totalDonations = donations.reduce((acc, curr) => acc + (curr.amount || 0), 0);
         const volunteerCount = await db.collection("volunteers").countDocuments();
         const events = await db.collection("events").find({}).toArray();
         const upcomingEventsCount = events.filter(e => new Date(e.date) >= new Date()).length;
         const userCount = await db.collection("users").countDocuments();
 
-        const recentDonations = await db.collection("donations").find({}).sort({ createdAt: -1 }).limit(3).toArray();
         const recentEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3);
 
         const activities = [
-            ...recentDonations.map(d => ({ id: d._id.toString(), type: "donation", title: "New Donation", date: d.createdAt })),
             ...recentEvents.map(e => ({ id: e._id.toString(), type: "event", title: "New Event", date: e.createdAt }))
         ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
 
-        res.json({ stats: { totalDonations, volunteerCount, upcomingEventsCount, userCount }, recentActivity: activities });
+        res.json({ stats: { totalDonations: 0, volunteerCount, upcomingEventsCount, userCount }, recentActivity: activities });
     } catch (e) {
         console.error("Dashboard error:", e);
         res.status(500).json({ message: "Failed" });
@@ -141,13 +137,11 @@ app.get('/api/dashboard', async (req, res) => {
 // Stats
 app.get('/api/stats', async (req, res) => {
     try {
-        const donations = await db.collection("donations").find({}).toArray();
-        const totalFunds = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
         const activeVolunteers = await db.collection("volunteers").countDocuments();
         const eventsCompleted = await db.collection("events").countDocuments({ date: { $lt: new Date() } });
 
         res.json({
-            totalFunds: totalFunds.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+            totalFunds: "Dynamic",
             activeVolunteers: activeVolunteers.toString(),
             eventsCompleted: eventsCompleted.toString(),
             partnerOrgs: "12"
@@ -217,53 +211,6 @@ app.delete('/api/volunteers', async (req, res) => {
     } catch (e) { res.status(500).json({ message: "Error" }); }
 });
 
-// Donations
-app.get('/api/donations', async (req, res) => {
-    try {
-        res.json(await db.collection("donations").find({}).sort({ createdAt: -1 }).toArray());
-    } catch (e) { res.status(500).json({ message: "Error" }); }
-});
-app.get('/api/user/donations', async (req, res) => {
-    try {
-        res.json(await db.collection("donations").find({ donorEmail: req.query.email }).sort({ createdAt: -1 }).toArray());
-    } catch (e) { res.status(500).json({ message: "Error" }); }
-});
-app.delete('/api/donations', async (req, res) => {
-    try {
-        await db.collection("donations").deleteOne({ _id: new ObjectId(req.query.id) });
-        res.json({ message: "Deleted" });
-    } catch (e) { res.status(500).json({ message: "Error" }); }
-});
-
-app.post('/api/donate', async (req, res) => {
-    try {
-        const { amount, name, email, phone, address, city, state, zip, country, purpose, message, paymentMethod } = req.body;
-        const result = await db.collection("donations").insertOne({
-            amount: parseFloat(amount),
-            donorName: name,
-            donorEmail: email,
-            phone,
-            address: {
-                street: address,
-                city,
-                state,
-                zip,
-                country
-            },
-            purpose,
-            message,
-            paymentMethod,
-            status: "Completed",
-            createdAt: new Date()
-        });
-
-        const receiptText = `Thank you ${name} for donating $${amount}.`;
-        await sendEmail(email, "Donation Receipt", receiptText, `<p>${receiptText}</p>`);
-
-        res.status(201).json({ message: "Donation recorded", donationId: result.insertedId });
-    } catch (e) { res.status(500).json({ message: "Error" }); }
-});
-
 // Contact
 app.post('/api/contact', async (req, res) => {
     try {
@@ -282,7 +229,7 @@ app.post('/api/upload', async (req, res) => {
         }
 
         const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-            folder: 'sudur_assets', // Optional: groups uploads into a specific folder
+            folder: 'yaop_assets', // Optional: groups uploads into a specific folder
         });
 
         res.json({ url: uploadResponse.secure_url });
@@ -291,10 +238,57 @@ app.post('/api/upload', async (req, res) => {
         res.status(500).json({ message: "Image upload failed" });
     }
 });
+// Transparency Stats
+app.get('/api/transparency', async (req, res) => {
+    try {
+        const stats = await db.collection("transparency").findOne({ _id: "current_stats" });
+        if (!stats) {
+            // Default stats if none exist
+            const defaultStats = {
+                _id: "current_stats",
+                fundsReceived: 224786190,
+                kindsReceived: 70382390,
+                totalSpent: 191128460,
+                totalAmount: 549817120,
+                remainingAmount: 6352008,
+                updatedAt: new Date()
+            };
+            await db.collection("transparency").insertOne(defaultStats);
+            return res.json(defaultStats);
+        }
+        res.json(stats);
+    } catch (e) {
+        res.status(500).json({ message: "Error" });
+    }
+});
+
+app.post('/api/transparency', async (req, res) => {
+    try {
+        const { fundsReceived, kindsReceived, totalSpent, totalAmount, remainingAmount } = req.body;
+        await db.collection("transparency").updateOne(
+            { _id: "current_stats" },
+            { 
+                $set: { 
+                    fundsReceived: parseFloat(fundsReceived), 
+                    kindsReceived: parseFloat(kindsReceived), 
+                    totalSpent: parseFloat(totalSpent), 
+                    totalAmount: parseFloat(totalAmount), 
+                    remainingAmount: parseFloat(remainingAmount),
+                    updatedAt: new Date()
+                } 
+            },
+            { upsert: true }
+        );
+        res.json({ message: "Transparency stats updated" });
+    } catch (e) {
+        res.status(500).json({ message: "Error updating stats" });
+    }
+});
+
 // END OF ROUTES
 
 app.get('/', (req, res) => {
-    res.send('SUDUR Backend API is running!');
+    res.send('Youth Association Of Purbichauki Backend API is running!');
 });
 
 module.exports = app;

@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { auth } from "@/lib/firebase";
@@ -17,7 +16,10 @@ function LoginContent() {
 
     useEffect(() => {
         if (searchParams.get("error")) {
-            setError("Authentication failed. Please try again.");
+            const timer = setTimeout(() => {
+                setError("Authentication failed. Please try again.");
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [searchParams]);
 

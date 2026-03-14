@@ -48,20 +48,11 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-start h-full">
-                        <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center mb-4">
-                            <CreditCard className="w-6 h-6 text-rose-600 dark:text-rose-400" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">Donation History</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 flex-1">View your past contributions and download receipts.</p>
-                        <Link href="/dashboard/donations" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 mt-auto">View Donations &rarr;</Link>
-                    </div>
-
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-start h-full">
                         <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center mb-4">
                             <Calendar className="w-6 h-6 text-teal-600 dark:text-teal-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">My Events</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 flex-1">Track the community events you've registered for.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 flex-1">Track the community events you&apos;ve registered for.</p>
                         <Link href="/dashboard/events" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 mt-auto">View Events &rarr;</Link>
                     </div>
                 </div>

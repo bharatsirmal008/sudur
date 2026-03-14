@@ -1,17 +1,15 @@
 import Hero from "./components/Hero";
-import AboutSection from "./components/AboutSection";
-import StatsSection from "./components/StatsSection";
-import EventsSection from "./components/EventsSection";
-import ContactSection from "./components/ContactSection";
+import About from "./components/About";
+import Events from "./components/Events";
+import Transparency from "./components/Transparency";
 
 export default function Home() {
   return (
     <main className="flex flex-col min-h-screen">
       <Hero />
-      <AboutSection />
-      <EventsSection />
-      <ContactSection />
-      <StatsSection />
+      <About />
+      <Events />
+      <Transparency />
     </main>
   );
-}
+}

@@ -13,22 +13,41 @@ import {
     Loader2
 } from "lucide-react";
 
+interface AdminStats {
+    volunteerCount: number;
+    upcomingEventsCount: number;
+    userCount: number;
+}
+
+interface RecentActivity {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+}
+
 export default function AdminOverviewPage() {
     const [data, setData] = useState<{
-        stats: any;
-        recentActivity: any[];
+        stats: AdminStats;
+        recentActivity: RecentActivity[];
     } | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch("/api/dashboard")
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Server error");
+                return res.json();
+            })
             .then(resData => {
-                if (resData.stats) {
+                if (resData && resData.stats) {
                     setData(resData);
                 }
             })
-            .catch(console.error)
+            .catch(err => {
+                console.error("Dashboard fetch error:", err);
+                setData(null);
+            })
             .finally(() => setLoading(false));
     }, []);
 
@@ -36,7 +55,7 @@ export default function AdminOverviewPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[500px]">
                 <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading Dashboard...</p>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Loading Dashboard...</p>
             </div>
         );
     }
@@ -44,7 +63,6 @@ export default function AdminOverviewPage() {
     const { stats, recentActivity } = data;
 
     const statCards = [
-        { name: "Total Donations", value: `$${stats.totalDonations.toLocaleString()}`, change: "+Live", icon: Heart, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-900/20" },
         { name: "Active Volunteers", value: stats.volunteerCount, change: "+Live", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
         { name: "Upcoming Events", value: stats.upcomingEventsCount, change: "+Live", icon: Calendar, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
         { name: "Total Users", value: stats.userCount, change: "+Live", icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
@@ -60,18 +78,18 @@ export default function AdminOverviewPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                        className="p-6 bg-[#0a0a0a] rounded-3xl border border-slate-800 shadow-sm"
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className={`p-3 rounded-2xl ${stat.bg}`}>
                                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
                             </div>
-                            <span className="text-xs font-bold px-2 py-1 rounded-full text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/20">
+                            <span className="text-xs font-bold px-2 py-1 rounded-full text-indigo-400 bg-indigo-900/20">
                                 {stat.change}
                             </span>
                         </div>
-                        <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">{stat.name}</h3>
-                        <p className="text-2xl font-bold dark:text-white mt-1">{stat.value}</p>
+                        <h3 className="text-slate-400 text-sm font-medium">{stat.name}</h3>
+                        <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
                     </motion.div>
                 ))}
             </div>
@@ -79,10 +97,10 @@ export default function AdminOverviewPage() {
             {/* Main Content Area */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Recent Activity */}
-                <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                <div className="bg-[#0a0a0a] rounded-[2rem] border border-slate-800 p-8 shadow-sm">
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-xl font-bold dark:text-white">Recent Activity</h2>
-                        <button className="text-indigo-600 hover:text-indigo-700 text-sm font-bold flex items-center gap-1">
+                        <h2 className="text-xl font-bold text-white">Recent Activity</h2>
+                        <button className="text-indigo-400 hover:text-indigo-300 text-sm font-bold flex items-center gap-1">
                             Live Feed <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
                         </button>
                     </div>
@@ -93,18 +111,14 @@ export default function AdminOverviewPage() {
                         <div className="space-y-6">
                             {recentActivity.map((activity) => (
                                 <div key={activity.id} className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                                        {activity.type === "donation" ? (
-                                            <Heart className="w-5 h-5 text-rose-500" />
-                                        ) : (
-                                            <Calendar className="w-5 h-5 text-amber-500" />
-                                        )}
+                                    <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
+                                        <Calendar className="w-5 h-5 text-amber-500" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold dark:text-white">{activity.title}</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{activity.description}</p>
+                                        <p className="text-sm font-bold text-white">{activity.title}</p>
+                                        <p className="text-xs text-slate-400 mt-0.5">{activity.description}</p>
                                     </div>
-                                    <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0 mt-1">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 shrink-0 mt-1">
                                         {new Date(activity.date).toLocaleDateString()}
                                     </span>
                                 </div>

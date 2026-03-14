@@ -41,8 +41,8 @@ export const authOptions = {
                     }
 
                     return null;
-                } catch (error: any) {
-                    throw new Error(error.message);
+                } catch (error: unknown) {
+                    throw new Error(error instanceof Error ? error.message : "Authentication failed");
                 }
             }
         })
@@ -57,8 +57,8 @@ export const authOptions = {
         },
         async session({ session, token }: any) {
             if (session.user) {
-                session.user.id = token.id as string;
-                session.user.role = token.role as string;
+                (session.user as { id: string; role: string }).id = token.id as string;
+                (session.user as { id: string; role: string }).role = token.role as string;
             }
             return session;
         }

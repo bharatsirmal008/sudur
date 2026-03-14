@@ -3,11 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Heart, ShieldCheck } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
-import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -26,17 +24,15 @@ export default function Navbar() {
   if (pathname?.startsWith("/admin")) return null;
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/#about" },
+    { name: "Home", href: "/#home" },
     { name: "Events", href: "/#events" },
     { name: "Team", href: "/team" },
-    { name: "Contact", href: "/#contact" },
   ];
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${isScrolled
-        ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm py-3"
+        ? "bg-[#050505]/90 backdrop-blur-md shadow-sm border-b border-gray-800/50 py-3"
         : "bg-transparent py-5"
         }`}
     >
@@ -44,10 +40,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 z-50">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none overflow-hidden">
-            <img className="w-full h-full object-cover" src="/sudur_logo.png" alt="SUDUR Logo" />
+            <img className="w-full h-full object-cover" src="/logo.png" alt="YAOP Logo" />
           </div>
-          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 tracking-tight">
-            SUDUR
+          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300 tracking-tight">
+            YAOP
           </span>
         </Link>
 
@@ -57,7 +53,7 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors"
             >
               {link.name}
             </Link>
@@ -66,36 +62,27 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-4">
-          <ThemeToggle />
           {session ? (
-            <div className="flex items-center gap-3">
-
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-900 dark:text-white shadow-sm hover:border-indigo-600 dark:hover:border-indigo-400 transition-colors"
-              >
-                Dashboard
-              </Link>
-            </div>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-full border border-slate-800 bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:border-indigo-400 transition-colors"
+            >
+              Dashboard
+            </Link>
           ) : (
-            <>
-              <>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-6 py-2.5 text-sm font-bold text-white dark:text-slate-900 shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-[0.98]"
-                >
-                  Sign In
-                </Link>
-              </>
-            </>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-full bg-white px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm hover:bg-slate-200 transition-all active:scale-[0.98]"
+            >
+              Sign In
+            </Link>
           )}
         </div>
 
         {/* Mobile Toggle */}
         <div className="md:hidden flex items-center gap-2 z-50">
-          <ThemeToggle />
           <button
-            className="text-slate-900 dark:text-white p-2"
+            className="text-white p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -111,42 +98,35 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 right-0 bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 shadow-lg py-4 px-4 flex flex-col gap-4 md:hidden"
+            className="absolute top-full left-0 right-0 bg-[#0a0a0a] border-b border-slate-800 shadow-lg py-4 px-4 flex flex-col gap-4 md:hidden"
           >
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-slate-700 dark:text-slate-200 py-2 border-b border-slate-100 dark:border-slate-800 last:border-0"
+                className="block text-base font-medium text-slate-200 py-2 border-b border-slate-800 last:border-0"
               >
                 {link.name}
               </Link>
             ))}
             <div className="flex flex-col gap-3 pt-4">
               {session ? (
-                <>
-
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full text-center inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white"
-                  >
-                    Dashboard
-                  </Link>
-                </>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white"
+                >
+                  Dashboard
+                </Link>
               ) : (
-                <>
-                  <>
-                    <Link
-                      href="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full text-center inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-white px-5 py-3 text-sm font-bold text-white dark:text-slate-900"
-                    >
-                      Sign In
-                    </Link>
-                  </>
-                </>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-900"
+                >
+                  Sign In
+                </Link>
               )}
             </div>
           </motion.div>

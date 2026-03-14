@@ -50,7 +50,7 @@ export default async function UserEventsPage() {
                                 My Events
                             </h1>
                             <p className="text-slate-500 dark:text-slate-400 mt-1">
-                                Track the community events you've registered for.
+                                Track the community events you&apos;ve registered for.
                             </p>
                         </div>
                         <Link
@@ -116,7 +116,7 @@ export default async function UserEventsPage() {
                             </div>
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No events found</h3>
                             <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
-                                You haven't registered for any community events yet. Browse our upcoming activities to get involved!
+                                You haven&apos;t registered for any community events yet. Browse our upcoming activities to get involved!
                             </p>
                             <Link
                                 href="/events"
