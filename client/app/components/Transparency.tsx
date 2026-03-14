@@ -67,24 +67,24 @@ export default function Transparency() {
                                 </div>
 
                                 {/* Stat 2 */}
-                                <div className="flex flex-col gap-1.5">
+                                {/* <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold tracking-widest uppercase text-orange-500">
                                         KINDS RECEIVED
                                     </span>
                                     <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
                                         RS.{formatCurrency(stats.kindsReceived)}<span className="text-gray-600/70">.00</span>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* Stat 3 */}
-                                <div className="flex flex-col gap-1.5">
+                                {/* <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold tracking-widest uppercase text-[#e33737]">
                                         TOTAL SPENT
                                     </span>
                                     <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
                                         RS.{formatCurrency(stats.totalSpent)}<span className="text-gray-600/70">.00</span>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* Stat 4 */}
                                 <div className="flex flex-col gap-1.5">
