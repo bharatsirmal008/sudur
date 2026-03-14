@@ -102,8 +102,8 @@ export default function Transparency() {
                                 {/* Progress Bar */}
                                 <div className="flex w-full h-1.5 rounded-full overflow-hidden">
                                     <div className="h-full bg-emerald-500" style={{ width: `${(stats.fundsReceived / stats.totalAmount) * 100}%` }}></div>
-                                    <div className="h-full bg-orange-500" style={{ width: `${(stats.kindsReceived / stats.totalAmount) * 100}%` }}></div>
-                                    <div className="h-full bg-[#e33737]" style={{ width: `${(stats.totalSpent / stats.totalAmount) * 100}%` }}></div>
+                                    {/* <div className="h-full bg-orange-500" style={{ width: `${(stats.kindsReceived / stats.totalAmount) * 100}%` }}></div> */}
+                                    {/* <div className="h-full bg-[#e33737]" style={{ width: `${(stats.totalSpent / stats.totalAmount) * 100}%` }}></div> */}
                                     <div className="h-full bg-[#333333]" style={{ width: `${(stats.remainingAmount / stats.totalAmount) * 100}%` }}></div>
                                 </div>
 
