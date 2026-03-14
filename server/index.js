@@ -161,8 +161,8 @@ app.get('/api/events', async (req, res) => {
 
 app.post('/api/events', async (req, res) => {
     try {
-        const { title, description, date, location, image } = req.body;
-        const result = await db.collection("events").insertOne({ title, description, date: new Date(date), location, image, createdAt: new Date() });
+        const { title, description, date, location, image, registrationLink } = req.body;
+        const result = await db.collection("events").insertOne({ title, description, date: new Date(date), location, image, registrationLink, createdAt: new Date() });
         res.status(201).json({ message: "Event created", id: result.insertedId });
     } catch (e) { res.status(500).json({ message: "Error" }); }
 });

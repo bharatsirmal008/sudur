@@ -4,6 +4,18 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
 
+async function getMyEvents() {
+    const API_URL = process.env.BACKEND_API_URL || 'http://127.0.0.1:5000';
+    try {
+        const res = await fetch(`${API_URL}/api/events`, { cache: 'no-store' });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        console.error("Failed to fetch events:", e);
+        return [];
+    }
+}
+
 export default async function UserEventsPage() {
     const session = await getServerSession(authOptions);
 
@@ -11,27 +23,23 @@ export default async function UserEventsPage() {
         redirect("/login");
     }
 
-    // Placeholder data for user events
-    const myEvents = [
-        {
-            id: "e1",
-            title: "Community Beach Cleanup",
-            date: "October 15, 2026",
-            time: "09:00 AM - 01:00 PM",
-            location: "Sunnyvale Beach",
-            status: "Upcoming",
-            image: "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc9?auto=format&fit=crop&q=80&w=800",
-        },
-        {
-            id: "e2",
-            title: "Youth Coding Workshop",
-            date: "September 22, 2026",
-            time: "10:00 AM - 03:00 PM",
-            location: "Downtown Tech Hub",
-            status: "Completed",
-            image: "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=800",
-        }
-    ];
+    const fetchedEvents = await getMyEvents();
+    const now = new Date();
+
+    const myEvents = fetchedEvents.map((event: any) => {
+        const eventDate = new Date(event.date);
+        const isCompleted = eventDate < now;
+        
+        return {
+            id: event._id || event.id || Math.random().toString(),
+            title: event.title || "Untitled Event",
+            date: eventDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+            time: "Time TBD", // Since our schema only has a Date object, time isn't explicitly defined
+            location: event.location || "Location TBD",
+            status: isCompleted ? "Completed" : "Upcoming",
+            image: event.image || "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc9?auto=format&fit=crop&q=80&w=800",
+        };
+    });
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12">
@@ -64,7 +72,7 @@ export default async function UserEventsPage() {
 
                 <div className="space-y-6">
                     {myEvents.length > 0 ? (
-                        myEvents.map((event) => (
+                        myEvents.map((event: any) => (
                             <div key={event.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow">
                                 <div className="md:w-64 h-48 md:h-auto shrink-0 relative">
                                     <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800">
@@ -98,13 +106,6 @@ export default async function UserEventsPage() {
                                                 {event.location}
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                                        {event.status === 'Upcoming' && (
-                                            <button className="text-sm font-medium text-rose-600 hover:text-rose-700 transition-colors">
-                                                Cancel Registration
-                                            </button>
-                                        )}
                                     </div>
                                 </div>
                             </div>

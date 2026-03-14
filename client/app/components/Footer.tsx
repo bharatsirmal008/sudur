@@ -6,7 +6,7 @@ import { ArrowRight, Facebook, Instagram, Mail, Heart } from "lucide-react";
 
 export default function Footer() {
     const pathname = usePathname();
-    if (pathname?.startsWith("/admin") || pathname === "/team") return null;
+    if (pathname?.startsWith("/admin") || pathname === "/team" || pathname === "/login") return null;
 
     return (
         <footer className="bg-black text-white py-10 px-6 md:px-12 lg:px-24 font-sans border-t border-slate-900/50">

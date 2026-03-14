@@ -11,6 +11,7 @@ interface Event {
     date: string;
     location: string;
     image: string;
+    registrationLink?: string;
 }
 
 export default function AdminEventsPage() {
@@ -24,7 +25,8 @@ export default function AdminEventsPage() {
         description: "",
         date: "",
         location: "",
-        image: ""
+        image: "",
+        registrationLink: ""
     });
 
     const fetchEvents = async () => {
@@ -114,7 +116,7 @@ export default function AdminEventsPage() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", description: "", date: "", location: "", image: "" });
+        setFormData({ title: "", description: "", date: "", location: "", image: "", registrationLink: "" });
         setCurrentEvent(null);
     };
 
@@ -282,6 +284,17 @@ export default function AdminEventsPage() {
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                             placeholder="National City Convention Center"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Registration Link</label>
+                                        <input
+                                            type="url"
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold"
+                                            value={formData.registrationLink || ""}
+                                            onChange={(e) => setFormData({ ...formData, registrationLink: e.target.value })}
+                                            placeholder="https://forms.google.com/..."
                                         />
                                     </div>
 

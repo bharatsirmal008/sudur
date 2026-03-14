@@ -12,6 +12,7 @@ interface Event {
     location: string;
     image: string;
     createdAt: string;
+    registrationLink?: string;
 }
 
 export default function Events() {
@@ -104,9 +105,20 @@ export default function Events() {
                                         </div>
                                     </div>
 
-                                    <button disabled className="block w-full text-center py-2.5 px-4 outline outline-1 outline-slate-800 text-white hover:bg-slate-900 transition-colors rounded-xl font-medium cursor-not-allowed opacity-70">
-                                        Details Soon
-                                    </button>
+                                    {event.registrationLink ? (
+                                        <a 
+                                            href={event.registrationLink} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="block w-full text-center py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors rounded-xl font-medium"
+                                        >
+                                            Register Now
+                                        </a>
+                                    ) : (
+                                        <button disabled className="block w-full text-center py-2.5 px-4 outline outline-1 outline-slate-800 text-white hover:bg-slate-900 transition-colors rounded-xl font-medium cursor-not-allowed opacity-70">
+                                            Details Soon
+                                        </button>
+                                    )}
                                 </div>
                             </motion.div>
                         ))}

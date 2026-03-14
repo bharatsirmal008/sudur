@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
 
 function LoginContent() {
     const router = useRouter();
@@ -73,6 +73,45 @@ function LoginContent() {
         }
     };
 
+    const handleFacebookLogin = async () => {
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const provider = new FacebookAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            if (!user.email) {
+                setError("An email associated with your Facebook account is required.");
+                await auth.signOut();
+                setIsLoading(false);
+                return;
+            }
+
+            // Sync with NextAuth backend
+            const res = await signIn("credentials", {
+                redirect: false,
+                email: user.email,
+                isFirebase: "true",
+            });
+
+            if (res?.error) {
+                setError(res.error);
+                setIsLoading(false);
+                return;
+            }
+
+            router.push("/dashboard");
+            router.refresh();
+        } catch (err: unknown) {
+            console.error("Firebase Facebook Auth Error:", err);
+            const message = err instanceof Error ? err.message : "Facebook sign-in failed";
+            setError(message || "Facebook sign-in failed. Please try again.");
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden font-sans">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 blur-[120px] rounded-full opacity-50 pointer-events-none"></div>
@@ -85,7 +124,7 @@ function LoginContent() {
                 <div className="bg-[#121218]/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/5 shadow-2xl">
                     <div className="text-center mb-10">
                         <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Login</h1>
-                        <p className="text-slate-400 text-sm font-medium italic opacity-80">Sign in with your verified Google account</p>
+                        <p className="text-slate-400 text-sm font-medium italic opacity-80">Sign in with your social accounts</p>
                     </div>
 
                     {error && (
@@ -97,7 +136,7 @@ function LoginContent() {
                     <button
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-3 px-6 py-5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-lg transition-all active:scale-[0.98] disabled:opacity-70 mb-8"
+                        className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-lg transition-all active:scale-[0.98] disabled:opacity-70 mb-4"
                     >
                         {isLoading ? (
                             <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
@@ -110,6 +149,23 @@ function LoginContent() {
                                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                                 </svg>
                                 Continue with Google
+                            </>
+                        )}
+                    </button>
+
+                    <button
+                        onClick={handleFacebookLogin}
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-full border border-blue-600/50 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] font-bold text-lg transition-all active:scale-[0.98] disabled:opacity-70 mb-8"
+                    >
+                        {isLoading ? (
+                            <Loader2 className="w-6 h-6 animate-spin text-[#1877F2]" />
+                        ) : (
+                            <>
+                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                                Continue with Facebook
                             </>
                         )}
                     </button>
