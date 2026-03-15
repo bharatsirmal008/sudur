@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
 
 async function getMyEvents() {
-    const API_URL = process.env.BACKEND_API_URL || 'http://127.0.0.1:5000';
+    const API_URL = process.env.BACKEND_API_URL || 'https://sudurapi.vercel.app';
     try {
         const res = await fetch(`${API_URL}/api/events`, { cache: 'no-store' });
         if (!res.ok) return [];
