@@ -7,7 +7,7 @@ import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
 async function getMyEvents() {
     const API_URL = process.env.BACKEND_API_URL || 'https://sudurapi.vercel.app';
     try {
-        const res = await fetch(`${API_URL}/api/#events`, { cache: 'no-store' });
+        const res = await fetch(`${API_URL}/api/events`, { cache: 'no-store' });
         if (!res.ok) return [];
         return await res.json();
     } catch (e) {
@@ -120,7 +120,7 @@ export default async function UserEventsPage() {
                                 You haven&apos;t registered for any community events yet. Browse our upcoming activities to get involved!
                             </p>
                             <Link
-                                href="/events"
+                                href="/#events"
                                 className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors"
                             >
                                 View Upcoming Events
