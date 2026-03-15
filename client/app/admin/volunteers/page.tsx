@@ -123,7 +123,7 @@ export default function AdminVolunteersPage() {
                 const base64Image = reader.result;
                 const uploadUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
                     ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/upload`
-                    : "http://localhost:5000/api/upload";
+                    : "https://sudurapi.vercel.app/api/upload";
 
                 const res = await fetch(uploadUrl, {
                     method: "POST",
