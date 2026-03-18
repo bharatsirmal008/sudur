@@ -58,7 +58,8 @@ export default function AdminEventsPage() {
                 const base64Image = reader.result;
                 const uploadUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
                     ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/upload`
-                    : "https://sudurapi.vercel.app/api/upload";
+                    : "/api/upload";
+
 
                 const res = await fetch(uploadUrl, {
                     method: "POST",
