@@ -121,9 +121,7 @@ export default function AdminVolunteersPage() {
             reader.readAsDataURL(file);
             reader.onloadend = async () => {
                 const base64Image = reader.result;
-                const uploadUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
-                    ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/upload`
-                    : "/api/upload";
+                const uploadUrl = "/api/upload";
 
 
                 const res = await fetch(uploadUrl, {
