@@ -60,10 +60,6 @@ export default function Events() {
                             <Bell className="w-3 h-3" />
                             Take Action
                         </motion.div>
-                        <h2 className="text-3xl md:text-4xl lg:text-6xl font-black text-white mb-6 uppercase tracking-tighter italic">
-                            Upcoming <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Events</span>
-                        </h2>
-                        <div className="h-2 w-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-8" />
                         <p className="text-xl text-slate-400 leading-relaxed font-medium max-w-xl">
                             Join us in our upcoming community initiatives. Every participant counts in building a stronger foundation for our society.
                         </p>
@@ -220,7 +216,7 @@ export default function Events() {
 
                                 <div className="mb-10">
                                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Event Description</p>
-                                    <div className="text-slate-400 font-medium leading-relaxed max-h-48 overflow-y-auto pr-4 custom-scrollbar">
+                                    <div className="text-slate-400 font-medium leading-relaxed whitespace-pre-wrap custom-scrollbar max-h-[40vh] overflow-y-auto pr-2">
                                         {selectedEvent.description}
                                     </div>
                                 </div>
