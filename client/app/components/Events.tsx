@@ -160,63 +160,66 @@ export default function Events() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedEvent(null)}
-                            className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[999]"
+                            className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[999]"
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-[#0a0a0a] border border-slate-800 rounded-[3rem] shadow-2xl z-[1000] overflow-hidden"
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-2xl max-h-[90vh] bg-[#0a0a0a] border border-slate-800 rounded-[2.5rem] shadow-2xl z-[1000] overflow-y-auto custom-scrollbar"
                         >
                             <button 
                                 onClick={() => setSelectedEvent(null)}
-                                className="absolute top-6 right-6 p-3 bg-white/5 hover:bg-white/10 rounded-full text-white transition-colors z-[1001]"
+                                className="absolute top-6 right-6 p-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all z-[1010] border border-white/10"
                             >
                                 <X className="w-5 h-5" />
                             </button>
 
-                            <div className="relative h-72 overflow-hidden">
+                            <div className="relative h-64 sm:h-80 overflow-hidden">
                                 <img 
                                     src={selectedEvent.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1470&auto=format&fit=crop"} 
                                     alt={selectedEvent.title}
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
-                                <div className="absolute bottom-8 left-10">
-                                    <div className="bg-indigo-500 px-4 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-[0.2em] mb-4 inline-block shadow-lg shadow-indigo-500/40">
-                                        Exclusive Event
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
+                                <div className="absolute bottom-6 left-8 right-8">
+                                    <div className="bg-indigo-600 px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-[0.2em] mb-3 inline-block shadow-lg">
+                                        Active Notice
                                     </div>
-                                    <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic">
+                                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter italic leading-tight">
                                         {selectedEvent.title}
                                     </h2>
                                 </div>
                             </div>
 
-                            <div className="p-10">
-                                <div className="grid grid-cols-2 gap-8 mb-10">
-                                    <div className="flex items-center gap-4 bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                            <Calendar className="w-6 h-6 text-indigo-500" />
+                            <div className="p-8 md:p-10">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                                    <div className="flex items-center gap-4 bg-slate-900/40 p-5 rounded-[2rem] border border-slate-800/50">
+                                        <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shrink-0">
+                                            <Calendar className="w-5 h-5 text-indigo-500" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</p>
-                                            <p className="text-white font-bold">{new Date(selectedEvent.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Event Date</p>
+                                            <p className="text-white font-bold text-sm">{new Date(selectedEvent.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
-                                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                                            <MapPin className="w-6 h-6 text-purple-500" />
+                                    <div className="flex items-center gap-4 bg-slate-900/40 p-5 rounded-[2rem] border border-slate-800/50">
+                                        <div className="w-11 h-11 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shrink-0">
+                                            <MapPin className="w-5 h-5 text-purple-500" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Location</p>
-                                            <p className="text-white font-bold truncate max-w-[150px]">{selectedEvent.location}</p>
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Live Location</p>
+                                            <p className="text-white font-bold text-sm truncate max-w-[140px]">{selectedEvent.location}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="mb-10">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Event Description</p>
-                                    <div className="text-slate-400 font-medium leading-relaxed whitespace-pre-wrap custom-scrollbar max-h-[40vh] overflow-y-auto pr-2">
+                                    <div className="flex items-center gap-3 mb-5">
+                                        <div className="h-0.5 w-8 bg-indigo-500 rounded-full" />
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">General Information</p>
+                                    </div>
+                                    <div className="text-slate-300 font-medium leading-relaxed whitespace-pre-wrap break-words text-sm md:text-base">
                                         {selectedEvent.description}
                                     </div>
                                 </div>
@@ -226,13 +229,13 @@ export default function Events() {
                                         href={selectedEvent.registrationLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="w-full flex items-center justify-center py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02]"
+                                        className="w-full flex items-center justify-center py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-3xl font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all hover:scale-[1.01] active:translate-y-0.5"
                                     >
-                                        Secure Your Spot Now
+                                        Secure Your Participation
                                     </a>
                                 ) : (
-                                    <div className="w-full py-5 bg-slate-900 border border-slate-800 text-slate-500 text-center rounded-[2rem] font-black uppercase tracking-widest opacity-70">
-                                        Registration Closed
+                                    <div className="w-full py-5 bg-slate-900 border border-slate-800 text-slate-500 text-center rounded-3xl font-black uppercase tracking-widest opacity-60">
+                                        Registration Blocked
                                     </div>
                                 )}
                             </div>
