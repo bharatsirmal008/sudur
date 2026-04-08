@@ -57,6 +57,15 @@ app.use(async (req, res, next) => {
         if (!db) {
             await client.connect();
             db = client.db('sudur');
+            
+            // Infrastructure: Enforce unique email for accounts
+            try {
+                await db.collection("users").createIndex({ email: 1 }, { unique: true });
+                console.log("Unique email index ensured on users collection");
+            } catch (indexErr) {
+                console.log("Index already exists or failed to create:", indexErr.code);
+            }
+            
             console.log("Connected to MongoDB via middleware");
         }
         next();
