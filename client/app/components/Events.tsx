@@ -128,12 +128,33 @@ export default function Events() {
                                                 <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                             </div>
                                         )}
-                                        {event.startTime && event.startTime.trim() !== "" && event.endTime && event.endTime.trim() !== "" && (
-                                            <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
-                                                <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
-                                                <span>{event.startTime} - {event.endTime}</span>
-                                            </div>
-                                        )}
+                                        {(() => {
+                                            const formatTime = (timeStr?: string) => {
+                                                if (!timeStr || timeStr.trim() === "") return null;
+                                                try {
+                                                    // Handle both "14:00" and raw "4"
+                                                    if (timeStr.includes(":")) {
+                                                        const [hours, minutes] = timeStr.split(":").map(Number);
+                                                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                                                        const h12 = hours % 12 || 12;
+                                                        return `${h12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                                                    }
+                                                    return timeStr; // Fallback for raw numbers
+                                                } catch (e) { return null; }
+                                            };
+                                            const start = formatTime(event.startTime);
+                                            const end = formatTime(event.endTime);
+                                            
+                                            if (start && end) {
+                                                return (
+                                                    <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                                        <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
+                                                        <span>{start} - {end}</span>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
                                         <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
                                             <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
                                             <span className="max-w-[200px] truncate">{event.location}</span>

@@ -331,19 +331,39 @@ export default function EventDetailsPage() {
                                     )}
 
                                     {/* Time Row */}
-                                    {event.startTime && event.startTime.trim() !== "" && event.endTime && event.endTime.trim() !== "" && (
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
-                                                <Clock className="w-6 h-6 text-[#ff5722]" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Time Slot :</p>
-                                                <p className="text-lg font-black text-[#062a24]">
-                                                    {event.startTime} - {event.endTime}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
+                                    {(() => {
+                                        const formatTime = (timeStr?: string) => {
+                                            if (!timeStr || timeStr.trim() === "") return null;
+                                            try {
+                                                if (timeStr.includes(":")) {
+                                                    const [hours, minutes] = timeStr.split(":").map(Number);
+                                                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                                                    const h12 = hours % 12 || 12;
+                                                    return `${h12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                                                }
+                                                return timeStr;
+                                            } catch (e) { return null; }
+                                        };
+                                        const start = formatTime(event.startTime);
+                                        const end = formatTime(event.endTime);
+                                        
+                                        if (start && end) {
+                                            return (
+                                                <div className="flex items-center gap-5">
+                                                    <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                                                        <Clock className="w-6 h-6 text-[#ff5722]" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Time Slot :</p>
+                                                        <p className="text-lg font-black text-[#062a24]">
+                                                            {start} - {end}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
                                 </div>
 
                                 {(() => {
