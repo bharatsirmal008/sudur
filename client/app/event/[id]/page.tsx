@@ -316,7 +316,7 @@ export default function EventDetailsPage() {
                                     </div>
 
                                     {/* Date Row */}
-                                    {event.date && !isNaN(new Date(event.date).getTime()) && (
+                                    {event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000 && (
                                         <div className="flex items-center gap-5">
                                             <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
                                                 <Calendar className="w-6 h-6 text-[#ff5722]" />
@@ -347,7 +347,7 @@ export default function EventDetailsPage() {
                                 </div>
 
                                 {(() => {
-                                    const hasDate = !!event.date;
+                                    const hasDate = !!event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000;
                                     const evDate = hasDate ? new Date(event.date) : null;
                                     const today = new Date();
                                     today.setHours(0, 0, 0, 0);
@@ -377,7 +377,7 @@ export default function EventDetailsPage() {
                                                     ? 'text-slate-400'
                                                     : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                     }`}>
-                                                    {!hasDate ? "Join Us" : (status === 'closed' ? "Closed Event" : status === 'live' ? "Join live Event" : "Join Us Now")}
+                                                    {!hasDate ? "Join Event" : (status === 'closed' ? "Closed Event" : status === 'live' ? "Join live Event" : "Join Us Now")}
                                                 </span>
                                                 </div>
                                             </Link>

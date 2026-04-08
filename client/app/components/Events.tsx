@@ -121,9 +121,8 @@ export default function Events() {
                                         {event.title}
                                     </h3>
 
-                                    {/* Info Bar - Single Line */}
                                     <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
-                                        {event.date && !isNaN(new Date(event.date).getTime()) && (
+                                        {event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000 && (
                                             <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
                                                 <Calendar className="w-4.5 h-4.5" />
                                                 <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
@@ -153,7 +152,7 @@ export default function Events() {
 
                                     <div className="w-full md:w-auto shrink-0 md:px-6">
                                         {(() => {
-                                            const hasDate = !!event.date && !isNaN(new Date(event.date).getTime());
+                                            const hasDate = !!event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000;
                                             const evDate = hasDate ? new Date(event.date) : null;
                                             const today = new Date();
                                             today.setHours(0, 0, 0, 0);
@@ -181,7 +180,7 @@ export default function Events() {
                                                             ? 'text-slate-400'
                                                             : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                             }`}>
-                                                            {!hasDate ? "Join Us" : (status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Us Now')}
+                                                            {!hasDate ? "Join Event" : (status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Us Now')}
                                                         </span>
                                                         {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
                                                     </div>
