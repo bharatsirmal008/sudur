@@ -107,7 +107,7 @@ export default function EventDetailsPage() {
                         <span className="text-slate-600 truncate max-w-[200px]">{event.title}</span>
                     </div> */}
 
-                    <div className="relative group rounded-[10px] overflow-hidden shadow-2xl shadow-slate-200/50 aspect-[21/9]">
+                    <div className="relative group rounded-[10px] overflow-hidden shadow-2xl shadow-slate-200/50 aspect-[4/3] sm:aspect-video lg:aspect-[21/9]">
                         {event.image ? (
                             <img
                                 src={event.image}
@@ -116,12 +116,12 @@ export default function EventDetailsPage() {
                             />
                         ) : (
                             <div className="w-full h-full bg-[#f8fafc] flex items-center justify-center">
-                                <span className="text-slate-300 font-black text-4xl uppercase opacity-20 tracking-tighter">YAOP EVENT</span>
+                                <span className="text-slate-300 font-black text-2xl md:text-4xl uppercase opacity-20 tracking-tighter">YAOP EVENT</span>
                             </div>
                         )}
-                        <div className="absolute inset-0 rounded-[10px] bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        <div className="absolute inset-0 rounded-[10px] bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                        <div className="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12">
+                        <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12">
                             {(() => {
                                 const evDate = new Date(event.date);
                                 const today = new Date();
@@ -149,8 +149,8 @@ export default function EventDetailsPage() {
             </section>
 
             {/* Content Section */}
-            <section className="py-12 md:py-20">
-                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+            <section className="py-8 md:py-20">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20">
 
                     {/* Left Column: Details & Content */}
                     <div className="lg:col-span-7 space-y-16">
