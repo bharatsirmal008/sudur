@@ -156,7 +156,7 @@ export default function EventDetailsPage() {
                     <div className="lg:col-span-7 space-y-16">
                         {/* Highlights Grid */}
                         {(event.activities || event.shortDescription) && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 gap-8">
                                 {event.activities && (
                                     <motion.div
                                         initial={{ opacity: 0, x: -20 }}
