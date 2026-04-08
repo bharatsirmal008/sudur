@@ -122,22 +122,24 @@ export default function Events() {
                                     </h3>
 
                                     {/* Info Bar - Single Line */}
-                                        <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
+                                    <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
+                                        {event.date && !isNaN(new Date(event.date).getTime()) && (
                                             <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
                                                 <Calendar className="w-4.5 h-4.5" />
                                                 <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                             </div>
-                                            {event.startTime && event.endTime && (
-                                                <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
-                                                    <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
-                                                    <span>{event.startTime} - {event.endTime}</span>
-                                                </div>
-                                            )}
+                                        )}
+                                        {event.startTime && event.startTime.trim() !== "" && event.endTime && event.endTime.trim() !== "" && (
                                             <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
-                                                <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
-                                                <span className="max-w-[200px] truncate">{event.location}</span>
+                                                <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
+                                                <span>{event.startTime} - {event.endTime}</span>
                                             </div>
+                                        )}
+                                        <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                            <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
+                                            <span className="max-w-[200px] truncate">{event.location}</span>
                                         </div>
+                                    </div>
 
                                         <div className="space-y-4">
                                             <p className="text-gray-500 font-medium leading-relaxed line-clamp-2">
@@ -151,10 +153,12 @@ export default function Events() {
 
                                     <div className="w-full md:w-auto shrink-0 md:px-6">
                                         {(() => {
-                                            const evDate = new Date(event.date);
+                                            const hasDate = !!event.date && !isNaN(new Date(event.date).getTime());
+                                            const evDate = hasDate ? new Date(event.date) : null;
                                             const today = new Date();
                                             today.setHours(0, 0, 0, 0);
-                                            const isExpired = evDate < today;
+                                            
+                                            const isExpired = evDate ? evDate < today : false;
                                             const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
 
                                             return (
@@ -177,7 +181,7 @@ export default function Events() {
                                                             ? 'text-slate-400'
                                                             : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                             }`}>
-                                                            {status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Event'}
+                                                            {!hasDate ? "Join Us" : (status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Us Now')}
                                                         </span>
                                                         {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
                                                     </div>
