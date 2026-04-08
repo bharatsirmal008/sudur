@@ -2,17 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Loader2, X, Bell, Info } from "lucide-react";
+import { Calendar, MapPin, Loader2, X, Bell, Info, Clock } from "lucide-react";
+import Link from "next/link";
 
 interface Event {
     _id: string;
     title: string;
     description: string;
+    shortDescription?: string;
     date: string;
     location: string;
     image: string;
     createdAt: string;
     registrationLink?: string;
+    slug?: string;
+    startTime?: string;
+    endTime?: string;
+    status?: 'scheduled' | 'live' | 'closed';
 }
 
 export default function Events() {
@@ -43,24 +49,29 @@ export default function Events() {
     }, []);
 
     return (
-        <section id="events" className="py-24 bg-black border-t border-slate-900/50 relative overflow-hidden">
+        <section id="events" className="py-24 bg-white border-t border-slate-100 relative overflow-hidden">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
+            <img
+                src="/yellow_ellipse.svg"
+                alt=""
+                className="absolute top-10  w-[10rem] h-[10rem]  pointer-events-none"
+            />
+            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-indigo-50/50 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-50/50 blur-[120px] rounded-full pointer-events-none" />
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10">
+            <div className="max-w-[1400px] mx-auto px-4 md:px-10 relative z-10">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                     <div className="max-w-2xl">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-4"
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-xs font-bold uppercase tracking-widest mb-4"
                         >
                             <Bell className="w-3 h-3" />
                             Take Action
                         </motion.div>
-                        <p className="text-xl text-slate-400 leading-relaxed font-medium max-w-xl">
+                        <p className="text-xl text-slate-600 leading-relaxed font-medium max-w-xl">
                             Join us in our upcoming community initiatives. Every participant counts in building a stronger foundation for our society.
                         </p>
                     </div>
@@ -68,181 +79,127 @@ export default function Events() {
 
                 {loading ? (
                     <div className="flex flex-col justify-center items-center py-32 space-y-4">
-                        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-                        <p className="text-indigo-400 font-black uppercase tracking-widest text-xs animate-pulse">Gathering details...</p>
+                        <Loader2 className="w-12 h-12 text-[#2ea0c5] animate-spin" />
+                        <p className="text-[#2ea0c5] font-black uppercase tracking-widest text-xs animate-pulse">Gathering details...</p>
                     </div>
                 ) : events.length === 0 ? (
-                    <div className="text-center py-20 bg-[#0a0a0a] rounded-[3rem] border border-slate-800/50 backdrop-blur-sm">
-                        <Calendar className="w-16 h-16 text-slate-700 mx-auto mb-6" />
-                        <h3 className="text-2xl font-bold text-white mb-2">No Upcoming Events</h3>
+                    <div className="text-center py-20 bg-white rounded-[3rem] border border-slate-200 shadow-xl shadow-slate-200/50">
+                        <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-6" />
+                        <h3 className="text-2xl font-bold text-[#14181f] mb-2">No Upcoming Events</h3>
                         <p className="text-slate-500 font-medium">We are planning something major. Stay tuned for updates!</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="flex flex-col gap-10">
                         {events.map((event, idx) => (
                             <motion.div
                                 key={event._id}
-                                initial={{ opacity: 0, y: 40 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1, duration: 0.6, ease: "easeOut" }}
-                                className="group relative bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-slate-800/80 hover:border-indigo-500/40 transition-all duration-500 shadow-2xl hover:shadow-indigo-500/5 flex flex-col h-full"
+                                transition={{ delay: idx * 0.1, duration: 0.6 }}
+                                className="group bg-white rounded-[10px] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_48px_80px_rgba(0,0,0,0.08)] transition-all duration-500 overflow-hidden flex flex-col md:flex-row items-center p-6 md:p-8"
                             >
-                                <div className="relative h-64 overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    <img
-                                        src={event.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1470&auto=format&fit=crop"}
-                                        alt={event.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                    />
-                                    <div className="absolute top-6 left-6 z-20">
-                                        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-[0.2em]">
-                                            Live Event
+                                {/* Left Side: Image */}
+                                <div className="w-full md:w-[30%] h-64 md:h-56 shrink-0 overflow-hidden rounded-[10px] relative">
+                                    {event.image ? (
+                                        <img
+                                            src={event.image}
+                                            alt={event.title}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Image</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/5" />
+                                </div>
+
+                                {/* Middle Section: Content */}
+                                <div className="flex-1 py-10 md:py-0 md:px-12 space-y-6">
+                                    <h3 className="text-3xl md:text-4xl font-black text-[#14181f] tracking-tight truncate pb-1">
+                                        {event.title}
+                                    </h3>
+
+                                    {/* Info Bar - Single Line */}
+                                    <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
+                                        <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
+                                            <Calendar className="w-4.5 h-4.5" />
+                                            <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                            <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
+                                            <span>{event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : "Time TBA"}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                            <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
+                                            <span className="max-w-[200px] truncate">{event.location}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <p className="text-gray-500 font-medium leading-relaxed line-clamp-2">
+                                            {event.shortDescription || event.description}
+                                        </p>
+
+                                        {/* Impact Points */}
+                                        <div className="space-y-2.5 pt-2">
+                                            <div className="flex items-start gap-3 text-[13px] font-bold text-[#14181f]/80 leading-snug">
+                                                <span className="text-red-500 shrink-0">❤️</span>
+                                                Improving local environmental health.
+                                            </div>
+                                            <div className="flex items-start gap-3 text-[13px] font-bold text-[#14181f]/80 leading-snug">
+                                                <span className="text-red-500 shrink-0">❤️</span>
+                                                Promoting neighborhood cleanliness together.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="p-8 flex-1 flex flex-col">
-                                    <h3 className="text-2xl font-black text-white mb-6 line-clamp-2 leading-tight uppercase group-hover:text-indigo-400 transition-colors">
-                                        {event.title}
-                                    </h3>
+                                {/* Divider (Desktop only) */}
+                                <div className="hidden md:block w-px h-32 bg-slate-100 mx-4" />
 
-                                    <div className="space-y-4 mb-8 mt-auto">
-                                        <div className="flex items-center text-sm font-bold text-slate-300">
-                                            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center mr-4 shrink-0 border border-indigo-500/20">
-                                                <Calendar className="w-5 h-5 text-indigo-500" />
-                                            </div>
-                                            {new Date(event.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                                        </div>
-                                        <div className="flex items-center text-sm font-bold text-slate-300">
-                                            <div className="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center mr-4 shrink-0 border border-purple-500/20">
-                                                <MapPin className="w-5 h-5 text-purple-500" />
-                                            </div>
-                                            <span className="truncate" title={event.location}>{event.location}</span>
-                                        </div>
-                                    </div>
+                                <div className="w-full md:w-auto shrink-0 md:px-6">
+                                    {(() => {
+                                        const evDate = new Date(event.date);
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        const isExpired = evDate < today;
+                                        const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button 
-                                            onClick={() => setSelectedEvent(event)}
-                                            className="flex items-center justify-center gap-2 py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white transition-all rounded-2xl font-black uppercase text-[10px] tracking-widest border border-slate-800"
-                                        >
-                                            <Info className="w-3 h-3 text-indigo-500" /> Details
-                                        </button>
-                                        {event.registrationLink ? (
-                                            <a 
-                                                href={event.registrationLink} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                className="block text-center py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white transition-all rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-[1.02]"
+                                        return (
+                                            <Link
+                                                href={`/event/${event.slug || event._id}`}
+                                                className={`relative w-full md:w-auto flex flex-col items-center justify-center py-4 px-10 rounded-[10px] shadow-xl transition-all overflow-hidden group/btn cursor-pointer ${status === 'closed'
+                                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
+                                                    : 'bg-[#fdf2f8] border border-[#ff5722]/10 hover:shadow-[#ff5722]/10'
+                                                    }`}
                                             >
-                                                Register
-                                            </a>
-                                        ) : (
-                                            <button disabled className="block w-full text-center py-3.5 px-4 bg-slate-900 border border-slate-800 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest cursor-not-allowed opacity-50">
-                                                Closed
-                                            </button>
-                                        )}
-                                    </div>
+                                                {status !== 'closed' && (
+                                                    <img
+                                                        src="/pink_ellipse.svg"
+                                                        className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover/btn:scale-125 transition-transform duration-700 pointer-events-none"
+                                                        alt=""
+                                                    />
+                                                )}
+                                                <div className="relative z-10 flex flex-col items-center justify-center">
+                                                    <span className={`text-sm font-black tracking-tight whitespace-nowrap ${status === 'closed'
+                                                        ? 'text-slate-400'
+                                                        : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
+                                                        }`}>
+                                                        {status === 'closed' ? 'Entry Closed' : status === 'live' ? 'Live Now' : 'Join Event'}
+                                                    </span>
+                                                    {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
+                                                </div>
+                                            </Link>
+                                        );
+                                    })()}
                                 </div>
                             </motion.div>
                         ))}
                     </div>
                 )}
             </div>
-
-            {/* Event Details Modal */}
-            <AnimatePresence>
-                {selectedEvent && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedEvent(null)}
-                            className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[999]"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-2xl max-h-[90vh] bg-[#0a0a0a] border border-slate-800 rounded-[2.5rem] shadow-2xl z-[1000] overflow-y-auto custom-scrollbar"
-                        >
-                            <button 
-                                onClick={() => setSelectedEvent(null)}
-                                className="absolute top-6 right-6 p-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all z-[1010] border border-white/10"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-
-                            <div className="relative h-64 sm:h-80 overflow-hidden">
-                                <img 
-                                    src={selectedEvent.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1470&auto=format&fit=crop"} 
-                                    alt={selectedEvent.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
-                                <div className="absolute bottom-6 left-8 right-8">
-                                    <div className="bg-indigo-600 px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-[0.2em] mb-3 inline-block shadow-lg">
-                                        Active Notice
-                                    </div>
-                                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter italic leading-tight">
-                                        {selectedEvent.title}
-                                    </h2>
-                                </div>
-                            </div>
-
-                            <div className="p-8 md:p-10">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                                    <div className="flex items-center gap-4 bg-slate-900/40 p-5 rounded-[2rem] border border-slate-800/50">
-                                        <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shrink-0">
-                                            <Calendar className="w-5 h-5 text-indigo-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Event Date</p>
-                                            <p className="text-white font-bold text-sm">{new Date(selectedEvent.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4 bg-slate-900/40 p-5 rounded-[2rem] border border-slate-800/50">
-                                        <div className="w-11 h-11 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shrink-0">
-                                            <MapPin className="w-5 h-5 text-purple-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Live Location</p>
-                                            <p className="text-white font-bold text-sm truncate max-w-[140px]">{selectedEvent.location}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-10">
-                                    <div className="flex items-center gap-3 mb-5">
-                                        <div className="h-0.5 w-8 bg-indigo-500 rounded-full" />
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">General Information</p>
-                                    </div>
-                                    <div className="text-slate-300 font-medium leading-relaxed whitespace-pre-wrap break-words text-sm md:text-base">
-                                        {selectedEvent.description}
-                                    </div>
-                                </div>
-
-                                {selectedEvent.registrationLink ? (
-                                    <a 
-                                        href={selectedEvent.registrationLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full flex items-center justify-center py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-3xl font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all hover:scale-[1.01] active:translate-y-0.5"
-                                    >
-                                        Secure Your Participation
-                                    </a>
-                                ) : (
-                                    <div className="w-full py-5 bg-slate-900 border border-slate-800 text-slate-500 text-center rounded-3xl font-black uppercase tracking-widest opacity-60">
-                                        Registration Blocked
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
         </section>
     );
 }

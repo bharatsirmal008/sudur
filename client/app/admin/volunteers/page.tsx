@@ -23,6 +23,7 @@ interface Volunteer {
     role: string;
     location: string;
     image: string;
+    isVisible?: boolean;
     socials: {
         instagram?: string;
         linkedin?: string;
@@ -41,13 +42,14 @@ export default function AdminVolunteersPage() {
         role: "Volunteer",
         location: "Khirsain",
         image: "",
+        isVisible: true,
         socials: { instagram: "", linkedin: "", facebook: "" }
     });
 
     const fetchVolunteers = async () => {
         try {
             setLoading(true);
-            const res = await fetch("/api/volunteers");
+            const res = await fetch("/api/volunteers?admin=true");
             const data = await res.json();
             setVolunteers(data);
         } catch (err) {
@@ -94,12 +96,26 @@ export default function AdminVolunteersPage() {
         }
     };
 
+    const toggleVisibility = async (v: Volunteer) => {
+        try {
+            const res = await fetch("/api/volunteers", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...v, id: v._id, isVisible: !v.isVisible }),
+            });
+            if (res.ok) fetchVolunteers();
+        } catch (err) {
+            console.error("Toggle visibility failed:", err);
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             name: "",
             role: "Volunteer",
             location: "Khirsain",
             image: "",
+            isVisible: true,
             socials: { instagram: "", linkedin: "", facebook: "" }
         });
         setCurrentVolunteer(null);
@@ -182,6 +198,7 @@ export default function AdminVolunteersPage() {
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Team Member</th>
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Role</th>
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500">Location</th>
+                                <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500 text-center">Visibility</th>
                                 <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -216,6 +233,18 @@ export default function AdminVolunteersPage() {
                                     </td>
                                     <td className="p-6 text-slate-400 font-medium">
                                         {v.location}
+                                    </td>
+                                    <td className="p-6 text-center">
+                                        <button
+                                            onClick={() => toggleVisibility(v)}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${v.isVisible !== false ? 'bg-indigo-600' : 'bg-slate-700'
+                                                }`}
+                                        >
+                                            <span
+                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${v.isVisible !== false ? 'translate-x-6' : 'translate-x-1'
+                                                    }`}
+                                            />
+                                        </button>
                                     </td>
                                     <td className="p-6 text-right">
                                         <div className="flex items-center justify-end gap-2">
@@ -308,6 +337,19 @@ export default function AdminVolunteersPage() {
                                             <option value="Gairagaun">Gairagaun</option>
                                             <option value="Kadamandu">Kadamandu</option>
                                         </select>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            id="isVisible"
+                                            className="w-5 h-5 rounded border-slate-200 dark:border-slate-800 text-indigo-600 focus:ring-indigo-600"
+                                            checked={formData.isVisible !== false}
+                                            onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
+                                        />
+                                        <label htmlFor="isVisible" className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                            Enable on Main Page
+                                        </label>
                                     </div>
 
                                     <div>

@@ -6,15 +6,15 @@ import { ArrowRight, Facebook, Instagram, Mail, Heart } from "lucide-react";
 
 export default function Footer() {
     const pathname = usePathname();
-    if (pathname?.startsWith("/admin") || pathname === "/team" || pathname === "/login") return null;
+    if (pathname?.startsWith("/admin") || pathname === "/team" || pathname === "/login" || pathname === "/volunteer" || pathname === "/donate") return null;
 
     return (
-        <footer className="bg-black text-white py-10 px-6 md:px-12 lg:px-24 font-sans border-t border-slate-900/50">
+        <footer className="bg-white text-slate-900 py-10 px-6 md:px-12 lg:px-24 font-sans border-t border-slate-100">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between">
 
                 {/* Left Section */}
-                <div className="flex flex-col max-w-2xl">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium leading-[1.2] text-gray-200 tracking-tight">
+                <div className="flex flex-col max-w-2xl text-left">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black leading-[1.2] text-slate-900 tracking-tight">
                         Join us in our fight for a better
                         <br className="hidden lg:block" />
                         {" "}future for our societies and its
@@ -23,38 +23,34 @@ export default function Footer() {
                     </h2>
 
                     <div className="mt-8 space-y-3">
-                        <p className="text-sm text-gray-400 font-medium">Stay updated with us and our causes.</p>
+                        <p className="text-sm text-slate-500 font-medium">Stay updated with us and our causes.</p>
                         <div className="relative max-w-md flex items-center">
                             <input
                                 type="email"
                                 placeholder="Subscribe to our Newsletter"
-                                className="w-full bg-[#252525] border border-transparent rounded-md py-3.5 px-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-600 focus:bg-[#2a2a2a] transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-md py-3.5 px-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500/50 focus:bg-white transition-colors"
                             />
-                            <button className="absolute right-4 text-gray-500 hover:text-gray-300 transition-colors">
+                            <button className="absolute right-4 text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer">
                                 <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
                     </div>
 
                     <div className="mt-8 flex flex-wrap gap-4">
-                        <a
-                            href="https://docs.google.com/forms/d/e/1FAIpQLSeWEXcvU6l3wb6bSiChzHVbr-ElI3oDXrzvvT_qndTdfp8q-Q/viewform"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2  bg-emerald-950/30 hover:bg-emerald-950/50 text-emerald-400 text-sm font-medium py-3 px-5 rounded-md transition-colors"
+                        <Link
+                            href="/volunteer"
+                            className="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-sm font-bold py-3 px-6 rounded-[10px] transition-all cursor-pointer shadow-sm shadow-emerald-600/5"
                         >
                             Apply as a volunteer
                             <ArrowRight className="w-4 h-4 ml-1" />
-                        </a>
-                        <a
-                            href="https://docs.google.com/forms/d/e/1FAIpQLScoceAopvrnADYYBCB3cgJY6TX05UkUTXFxBKlIJYyN2aR3sg/viewform?usp=publish-editor"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-emerald-950/30 hover:bg-emerald-950/50 text-emerald-400 text-sm font-medium py-3 px-5 rounded-md border border-emerald-900/50 transition-colors"
+                        </Link>
+                        <Link
+                            href="/donate"
+                            className="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-sm font-bold py-3 px-6 rounded-[10px] border border-emerald-100 transition-all cursor-pointer shadow-sm shadow-emerald-600/5"
                         >
                             Donate Now
                             <Heart className="w-4 h-4 ml-1" />
-                        </a>
+                        </Link>
                     </div>
                 </div>
 
@@ -63,11 +59,11 @@ export default function Footer() {
                     <div className="space-y-10">
                         {/* Location Info */}
                         <div className="space-y-6">
-                            <h3 className="text-xs font-semibold text-gray-500 tracking-widest uppercase">
+                            <h3 className="text-xs font-semibold text-slate-400 tracking-widest uppercase">
                                 Purbichauki
                             </h3>
-                            <ul className="space-y-1.5 text-[15px] text-gray-300">
-                                <li className="font-medium text-gray-200">YAOP</li>
+                            <ul className="space-y-1.5 text-[15px] text-slate-600">
+                                <li className="font-bold text-slate-900">YAOP</li>
                                 <li>Purbichauki rural municipality 01,</li>
                                 <li>khirshain doti, Nepal.</li>
                                 <li className="pt-2">+977 98XXXXXXX</li>
@@ -77,7 +73,7 @@ export default function Footer() {
 
                         {/* Socials */}
                         <div className="space-y-5">
-                            <h3 className="text-xs font-semibold text-gray-500 tracking-widest uppercase">
+                            <h3 className="text-xs font-semibold text-slate-400 tracking-widest uppercase">
                                 Socials
                             </h3>
                             <div className="flex gap-3">
@@ -85,21 +81,21 @@ export default function Footer() {
                                     href="https://www.facebook.com/people/Youth-Association-Of-Purbichauki/61583554026434/"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-center w-10 h-10  bg-emerald-950/30 hover:bg-emerald-950/50 rounded-md  transition-colors"
+                                    className="flex items-center justify-center w-10 h-10 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors cursor-pointer"
                                 >
-                                    <Facebook className="w-4 h-4 text-emerald-400" />
+                                    <Facebook className="w-4 h-4 text-emerald-600" />
                                 </a>
                                 <a
                                     href="#"
-                                    className="flex items-center justify-center w-10 h-10  bg-emerald-950/30 hover:bg-emerald-950/50 rounded-md  transition-colors"
+                                    className="flex items-center justify-center w-10 h-10 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors cursor-pointer"
                                 >
-                                    <Instagram className="w-4 h-4 text-emerald-400" />
+                                    <Instagram className="w-4 h-4 text-emerald-600" />
                                 </a>
                                 <a
                                     href="mailto:purbichaukiyuwanetritwa99@gmail.com"
-                                    className="flex items-center justify-center w-10 h-10  bg-emerald-950/30 hover:bg-emerald-950/50 rounded-md  transition-colors"
+                                    className="flex items-center justify-center w-10 h-10 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors cursor-pointer"
                                 >
-                                    <Mail className="w-4 h-4 text-emerald-400" />
+                                    <Mail className="w-4 h-4 text-emerald-600" />
                                 </a>
                             </div>
                         </div>
@@ -108,19 +104,18 @@ export default function Footer() {
             </div>
 
             {/* Bottom Section */}
-            <div className="max-w-7xl mx-auto mt-16 flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
-                <p className="text-sm text-gray-500">
+            <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
+                <p className="text-sm text-slate-400 font-medium">
                     Copyright © {new Date().getFullYear()} YAOP
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2.5 bg-[#252525] px-4 py-2 rounded-full border border-[#333]">
+                    <div className="flex items-center gap-2.5 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs font-medium text-gray-300">Beta Release - v0.1.7</span>
                     </div>
-                    <span className="text-xs font-medium text-gray-300">
+                    {/* <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                         YAOP x Void Studio
-                    </span>
+                    </span> */}
                 </div>
             </div>
         </footer>

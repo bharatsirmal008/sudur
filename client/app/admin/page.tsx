@@ -15,8 +15,11 @@ import {
 
 interface AdminStats {
     volunteerCount: number;
+    pendingVolunteerCount: number;
     upcomingEventsCount: number;
     userCount: number;
+    pendingDonationCount: number;
+    totalDonations: number;
 }
 
 interface RecentActivity {
@@ -26,7 +29,10 @@ interface RecentActivity {
     date: string;
 }
 
+import { useRouter } from "next/navigation";
+
 export default function AdminOverviewPage() {
+    const router = useRouter();
     const [data, setData] = useState<{
         stats: AdminStats;
         recentActivity: RecentActivity[];
@@ -64,6 +70,7 @@ export default function AdminOverviewPage() {
 
     const statCards = [
         { name: "Active Volunteers", value: stats.volunteerCount, change: "+Live", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
+        { name: "Pending Apps", value: stats.pendingVolunteerCount, change: stats.pendingVolunteerCount > 0 ? "Action Required" : "Up to date", icon: Heart, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-900/20" },
         { name: "Upcoming Events", value: stats.upcomingEventsCount, change: "+Live", icon: Calendar, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
         { name: "Total Users", value: stats.userCount, change: "+Live", icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
     ];
@@ -132,14 +139,23 @@ export default function AdminOverviewPage() {
                     <h2 className="text-xl font-bold mb-6">Administrator Tasks</h2>
                     <div className="space-y-4">
                         {[
-                            "Review pending volunteer applications",
-                            "Update community event list",
-                            "Generate monthly financial report",
-                            "Backup site database"
+                            { title: "Review pending volunteer applications", route: "/admin/volunteers/applications", count: stats.pendingVolunteerCount },
+                            { title: "Review Donation Applications", route: "/admin/donations", count: stats.pendingDonationCount },
+                            { title: "Update community event list", route: "/admin/events" },
+                            { title: "Site Settings", route: "/admin/settings" }
                         ].map((task) => (
-                            <div key={task} className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-md rounded-2xl hover:bg-white/20 transition-all cursor-pointer">
-                                <span className="text-sm font-medium">{task}</span>
-                                <ChevronRight className="w-5 h-5 opacity-60" />
+                            <div 
+                                key={task.title} 
+                                onClick={() => router.push(task.route)}
+                                className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-md rounded-2xl hover:bg-white/20 transition-all cursor-pointer group"
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{task.title}</span>
+                                    {task.count !== undefined && task.count > 0 && (
+                                        <span className="text-[10px] uppercase font-bold text-rose-300 mt-1">{task.count} pending items</span>
+                                    )}
+                                </div>
+                                <ChevronRight className="w-5 h-5 opacity-60 group-hover:translate-x-1 transition-transform" />
                             </div>
                         ))}
                     </div>

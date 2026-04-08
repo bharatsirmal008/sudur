@@ -33,15 +33,61 @@ export default function Transparency() {
     };
 
     return (
-        <section id="contact" className="py-24 bg-black border-t border-slate-900/50 overflow-x-hidden">
-            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 flex flex-col xl:flex-row gap-16 xl:gap-24 items-center xl:items-start">
+        <section id="transparency" className="py-32 bg-white border-t border-slate-100 overflow-x-hidden relative">
+            {/* Background Branded Assets */}
+            <img
+                src="/green_ellipse.svg"
+                alt=""
+                className="absolute  top-10 w-[20rem] h-[20rem]  pointer-events-none"
+            />
+            <img
+                src="/blue_ellipse.svg"
+                alt=""
+                className="absolute bottom-10 right-10 w-[20rem] h-[20rem]  pointer-events-none"
+            />
+
+            <div className="max-w-[1440px] mx-auto px-6 md:px-12 xl:px-20 flex flex-col xl:flex-row gap-12 xl:gap-20 items-center xl:items-start relative z-10">
 
                 {/* Left Side */}
                 <div className="w-full xl:flex-1 flex flex-col justify-center">
                     <h2 className="font-sans font-black uppercase leading-[0.85] tracking-tighter flex flex-col m-0">
-                        <span className="text-[1.5rem] md:text-[2.5rem] lg:text-[4rem] text-[#e33737]">TRANSPARENTLY</span>
-                        <span className="text-[1.5rem] md:text-[2.5rem] lg:text-[4rem] text-white mt-1">UNVEILING OUR</span>
-                        <span className="text-[1.5rem] md:text-[2.5rem] lg:text-[4rem] text-white mt-1">ACCOUNT.</span>
+                        <motion.span
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            className="text-[1.5rem] md:text-[2.2rem] lg:text-[3.8rem] xl:text-[4.2rem] bg-clip-text text-transparent bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 whitespace-nowrap"
+                        >
+                            {"TRANSPARENTLY".split("").map((char, index) => (
+                                <motion.span
+                                    key={index}
+                                    variants={{
+                                        hidden: { opacity: 0, y: 20 },
+                                        visible: { opacity: 1, y: 0, transition: { delay: index * 0.05, duration: 0.5, ease: "easeOut" } }
+                                    }}
+                                    className="inline-block"
+                                >
+                                    {char}
+                                </motion.span>
+                            ))}
+                        </motion.span>
+                        <motion.span
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.8, duration: 0.8 }}
+                            className="text-[1.5rem] md:text-[2.5rem] lg:text-[4.5rem] text-slate-900 mt-2"
+                        >
+                            UNVEILING OUR
+                        </motion.span>
+                        <motion.span
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 1.1, duration: 0.8 }}
+                            className="text-[1.5rem] md:text-[2.5rem] lg:text-[4.5rem] text-slate-900 mt-1"
+                        >
+                            ACCOUNT.
+                        </motion.span>
                     </h2>
                 </div>
 
@@ -50,7 +96,7 @@ export default function Transparency() {
 
                     {loading ? (
                         <div className="flex justify-center py-20">
-                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                         </div>
                     ) : stats ? (
                         <>
@@ -58,63 +104,41 @@ export default function Transparency() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
                                 {/* Stat 1 */}
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-emerald-500">
+                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-emerald-600">
                                         FUNDS RECEIVED
                                     </span>
-                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
-                                        RS.{formatCurrency(stats.fundsReceived)}<span className="text-gray-600/70">.00</span>
+                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 flex items-baseline">
+                                        Rs. {formatCurrency(stats.fundsReceived)}<span className="text-slate-400">.00</span>
                                     </div>
                                 </div>
 
-                                {/* Stat 2 */}
-                                {/* <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-orange-500">
-                                        KINDS RECEIVED
-                                    </span>
-                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
-                                        RS.{formatCurrency(stats.kindsReceived)}<span className="text-gray-600/70">.00</span>
-                                    </div>
-                                </div> */}
-
-                                {/* Stat 3 */}
-                                {/* <div className="flex flex-col gap-1.5">
+                                {/* Stat 2: TOTAL SPENT */}
+                                <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold tracking-widest uppercase text-[#e33737]">
                                         TOTAL SPENT
                                     </span>
-                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
-                                        RS.{formatCurrency(stats.totalSpent)}<span className="text-gray-600/70">.00</span>
+                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 flex items-baseline">
+                                        Rs. {formatCurrency(stats.totalSpent)}<span className="text-slate-400">.00</span>
                                     </div>
-                                </div> */}
+                                </div>
 
-                                {/* Stat 4 */}
+                                {/* Stat 3: REMAINING AMOUNT */}
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">
-                                        TOTAL AMOUNT
+                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-slate-500">
+                                        REMAINING AMOUNT
                                     </span>
-                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
-                                        RS.{formatCurrency(stats.totalAmount)}<span className="text-gray-600/70">.00</span>
+                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 flex items-baseline">
+                                        Rs. {formatCurrency(stats.remainingAmount)}<span className="text-slate-400">.00</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Progress Bar Area */}
                             <div className="space-y-6 pt-2">
-                                {/* Progress Bar */}
-                                <div className="flex w-full h-1.5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-500" style={{ width: `${(stats.fundsReceived / stats.totalAmount) * 100}%` }}></div>
-                                    {/* <div className="h-full bg-orange-500" style={{ width: `${(stats.kindsReceived / stats.totalAmount) * 100}%` }}></div> */}
-                                    {/* <div className="h-full bg-[#e33737]" style={{ width: `${(stats.totalSpent / stats.totalAmount) * 100}%` }}></div> */}
-                                    <div className="h-full bg-[#333333]" style={{ width: `${(stats.remainingAmount / stats.totalAmount) * 100}%` }}></div>
-                                </div>
-
-                                {/* Remaining */}
-                                <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-                                        REMAINING AMOUNT
-                                    </span>
-                                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-gray-200 flex items-baseline">
-                                        RS.{formatCurrency(stats.remainingAmount)}<span className="text-gray-600/70">.00</span>
-                                    </div>
+                                {/* Split progress bar of total received */}
+                                <div className="flex w-full h-1.5 rounded-full overflow-hidden bg-slate-100">
+                                    <div className="h-full bg-emerald-500" style={{ width: `${stats.fundsReceived === 0 ? 0 : (stats.remainingAmount / stats.fundsReceived) * 100}%` }}></div>
+                                    <div className="h-full bg-[#e33737]" style={{ width: `${stats.fundsReceived === 0 ? 0 : (stats.totalSpent / stats.fundsReceived) * 100}%` }}></div>
                                 </div>
                             </div>
                         </>
@@ -123,11 +147,11 @@ export default function Transparency() {
                     )}
 
                     {/* Notice Box */}
-                    <div className="bg-[#0f241a] rounded-md p-5 flex gap-3.5 border border-[#163627]">
-                        <Info className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <div className="bg-emerald-50 rounded-xl p-6 flex gap-4 border border-emerald-100 shadow-sm shadow-emerald-500/5">
+                        <Info className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div className="flex flex-col gap-1.5">
-                            <h4 className="font-bold text-sm text-emerald-500">Notice!</h4>
-                            <p className="text-xs text-gray-300 leading-relaxed font-medium">
+                            <h4 className="font-bold text-sm text-emerald-700">Notice!</h4>
+                            <p className="text-xs text-slate-600 leading-relaxed font-medium">
                                 We are currently in the process of building this site. Our team is transferring all previous account records, and soon it will be fully operational for your convenience. We appreciate your patience during this time.
                             </p>
                         </div>

@@ -15,7 +15,7 @@ import {
     X,
     Calendar
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminLogin from "../components/AdminLogin";
 import { Loader2 } from "lucide-react";
@@ -28,10 +28,21 @@ export default function AdminLayout({
     const { data: session, status } = useSession();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [settings, setSettings] = useState<{ adminName?: string, logoUrl?: string } | null>(null);
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            fetch("/api/settings")
+                .then(res => res.json())
+                .then(data => setSettings(data))
+                .catch(console.error);
+        }
+    }, [status]);
 
     const menuItems = [
         { name: "Overview", href: "/admin", icon: LayoutDashboard },
         { name: "Volunteers", href: "/admin/volunteers", icon: Users },
+        { name: "Donations", href: "/admin/donations", icon: Heart },
         { name: "Events", href: "/admin/events", icon: Calendar },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
@@ -114,12 +125,16 @@ export default function AdminLayout({
 
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-sm font-bold text-white">{session?.user?.name}</p>
-                            <p className="text-xs text-slate-400">System Admin</p>
+                            <p className="text-sm font-bold text-white">{settings?.adminName || session?.user?.name || "System Admin"}</p>
+                            <p className="text-xs text-slate-400">System Administrator</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400">
-                            {session?.user?.name?.[0]}
-                        </div>
+                        {settings?.logoUrl ? (
+                            <img src={settings.logoUrl} alt="Admin Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-md shadow-indigo-500/10" />
+                        ) : (
+                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700">
+                                {(settings?.adminName || session?.user?.name || "A")[0].toUpperCase()}
+                            </div>
+                        )}
                     </div>
                 </header>
 

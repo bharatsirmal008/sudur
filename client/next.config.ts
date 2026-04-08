@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    const API_URL = process.env.BACKEND_API_URL || 'http://127.0.0.1:5000';
+    const API_URL = process.env.BACKEND_API_URL || 'http://localhost:5000';
     return {
       fallback: [
         {

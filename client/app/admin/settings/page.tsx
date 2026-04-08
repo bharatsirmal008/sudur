@@ -2,35 +2,41 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save, RefreshCw, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Save, RefreshCw, AlertCircle, CheckCircle2, Loader2, Image as ImageIcon, User, Building, Mail } from "lucide-react";
+
+interface SiteSettings {
+    adminName: string;
+    orgName: string;
+    adminEmail: string;
+    logoUrl: string;
+}
 
 export default function AdminSettingsPage() {
-    const [stats, setStats] = useState({
-        fundsReceived: 0,
-        kindsReceived: 0,
-        totalSpent: 0,
-        totalAmount: 0,
-        remainingAmount: 0
+    const [settings, setSettings] = useState<SiteSettings>({
+        adminName: '',
+        orgName: '',
+        adminEmail: '',
+        logoUrl: ''
     });
+    
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
-        fetch("/api/transparency")
+        fetch("/api/settings")
             .then(res => res.json())
             .then(data => {
                 if (data) {
-                    setStats({
-                        fundsReceived: data.fundsReceived || 0,
-                        kindsReceived: data.kindsReceived || 0,
-                        totalSpent: data.totalSpent || 0,
-                        totalAmount: data.totalAmount || 0,
-                        remainingAmount: data.remainingAmount || 0
+                    setSettings({
+                        adminName: data.adminName || '',
+                        orgName: data.orgName || '',
+                        adminEmail: data.adminEmail || '',
+                        logoUrl: data.logoUrl || ''
                     });
                 }
             })
-            .catch(err => console.error(err))
+            .catch(err => console.error("Error fetching settings:", err))
             .finally(() => setLoading(false));
     }, []);
 
@@ -40,19 +46,19 @@ export default function AdminSettingsPage() {
         setMessage(null);
 
         try {
-            const res = await fetch("/api/transparency", {
+            const res = await fetch("/api/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(stats)
+                body: JSON.stringify(settings)
             });
 
             if (res.ok) {
-                setMessage({ type: 'success', text: 'Statistics updated successfully!' });
+                setMessage({ type: 'success', text: 'System Configuration Updated!' });
             } else {
                 throw new Error("Failed to update");
             }
         } catch (err) {
-            setMessage({ type: 'error', text: 'Failed to update statistics. Please try again.' });
+            setMessage({ type: 'error', text: 'Failed to apply configuration.' });
         } finally {
             setSaving(false);
         }
@@ -68,92 +74,119 @@ export default function AdminSettingsPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto pb-10">
             <div className="mb-8">
-                <h1 className="text-3xl font-black tracking-tight text-white mb-2">Transparency Settings</h1>
-                <p className="text-slate-400">Manage the financial data displayed in the public transparency section.</p>
+                <h1 className="text-3xl font-black tracking-tight text-white mb-2">Global Settings</h1>
+                <p className="text-slate-400">Manage administrator profiles, organization branding, and contact channels.</p>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-[#0a0a0a] border border-slate-800 p-6 rounded-3xl space-y-4">
-                        <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2 block">Funds Received (RS)</span>
-                            <input
-                                type="number"
-                                value={stats.fundsReceived}
-                                onChange={(e) => setStats({ ...stats, fundsReceived: parseFloat(e.target.value) })}
-                                className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            />
-                        </label>
+            <form onSubmit={handleSave} className="space-y-8">
+                
+                {/* Branding Section */}
+                <div className="bg-[#0a0a0a] border border-slate-800 p-8 rounded-[2rem] shadow-sm">
+                    <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5 text-indigo-500" /> Site Branding
+                    </h2>
+                    
+                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                        {/* Logo Preview */}
+                        <div className="w-full md:w-48 aspect-square rounded-3xl border-2 border-dashed border-slate-800 bg-black flex items-center justify-center overflow-hidden shrink-0 relative group">
+                            {settings.logoUrl ? (
+                                <img src={settings.logoUrl} alt="Logo Preview" className="w-full h-full object-contain p-4" />
+                            ) : (
+                                <div className="text-center p-4">
+                                    <Building className="w-8 h-8 text-slate-700 mx-auto mb-2" />
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">No Logo</p>
+                                </div>
+                            )}
+                        </div>
 
-                        <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-orange-500 mb-2 block">Kinds Received (RS)</span>
-                            <input
-                                type="number"
-                                value={stats.kindsReceived}
-                                onChange={(e) => setStats({ ...stats, kindsReceived: parseFloat(e.target.value) })}
-                                className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            />
-                        </label>
+                        <div className="flex-1 space-y-5 w-full">
+                            <label className="block">
+                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Organization Name</span>
+                                <input
+                                    type="text"
+                                    value={settings.orgName}
+                                    onChange={(e) => setSettings({ ...settings, orgName: e.target.value })}
+                                    className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="Enter full organization name..."
+                                />
+                            </label>
+
+                            <label className="block">
+                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Logo URL (External Link)</span>
+                                <input
+                                    type="url"
+                                    value={settings.logoUrl}
+                                    onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
+                                    className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-emerald-400 font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="https://yourapp.com/logo.png"
+                                />
+                                <p className="text-[10px] text-slate-600 mt-2">Paste a direct image link or use Cloudinary. PNG with transparent background recommended.</p>
+                            </label>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="bg-[#0a0a0a] border border-slate-800 p-6 rounded-3xl space-y-4">
+                {/* Administrator Profile */}
+                <div className="bg-[#0a0a0a] border border-slate-800 p-8 rounded-[2rem] shadow-sm">
+                    <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                        <User className="w-5 h-5 text-indigo-500" /> Default Administrator Configuration
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                         <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-rose-500 mb-2 block">Total Spent (RS)</span>
-                            <input
-                                type="number"
-                                value={stats.totalSpent}
-                                onChange={(e) => setStats({ ...stats, totalSpent: parseFloat(e.target.value) })}
-                                className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            />
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Primary Admin Name</span>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                                <input
+                                    type="text"
+                                    value={settings.adminName}
+                                    onChange={(e) => setSettings({ ...settings, adminName: e.target.value })}
+                                    className="w-full bg-black border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="e.g. John Doe"
+                                />
+                            </div>
                         </label>
 
                         <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">Total Amount (RS)</span>
-                            <input
-                                type="number"
-                                value={stats.totalAmount}
-                                onChange={(e) => setStats({ ...stats, totalAmount: parseFloat(e.target.value) })}
-                                className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            />
-                        </label>
-                    </div>
-
-                    <div className="bg-[#0a0a0a] border border-slate-800 p-6 rounded-3xl md:col-span-2">
-                        <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-2 block">Remaining Amount (RS)</span>
-                            <input
-                                type="number"
-                                value={stats.remainingAmount}
-                                onChange={(e) => setStats({ ...stats, remainingAmount: parseFloat(e.target.value) })}
-                                className="w-full bg-black border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                            />
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">System Contact Email</span>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                                <input
+                                    type="email"
+                                    value={settings.adminEmail}
+                                    onChange={(e) => setSettings({ ...settings, adminEmail: e.target.value })}
+                                    className="w-full bg-black border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="sysadmin@example.com"
+                                />
+                            </div>
                         </label>
                     </div>
                 </div>
 
                 {message && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex items-center gap-3 p-4 rounded-2xl ${
-                            message.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={`flex items-center gap-3 p-5 rounded-2xl border ${
+                            message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'
                         }`}
                     >
                         {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                        <span className="text-sm font-bold">{message.text}</span>
+                        <span className="text-sm font-bold tracking-wide">{message.text}</span>
                     </motion.div>
                 )}
 
-                <div className="flex justify-end pt-4">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-4">
+                    <p className="text-slate-500 italic text-xs">Remember to configure your production SMTP server to make use of dynamic outbound emails.</p>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg shadow-indigo-500/20"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 px-10 rounded-2xl transition-all shadow-xl shadow-indigo-500/20"
                     >
                         {saving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {saving ? "Saving Changes..." : "Save Statistics"}
+                        {saving ? "Saving Changes..." : "Apply Global Configuration"}
                     </button>
                 </div>
             </form>
