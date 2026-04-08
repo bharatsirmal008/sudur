@@ -199,8 +199,12 @@ export default function AdminEventsPage() {
                                 layoutId={ev._id}
                                 className="group bg-[#0a0a0a] rounded-[2rem] border border-slate-800 overflow-hidden hover:border-[#FF5733]/50 transition-colors shadow-lg"
                             >
-                                <div className="h-48 relative overflow-hidden">
-                                    <img src={ev.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87"} className="w-full h-full object-cover" />
+                                <div className="h-48 relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                                    {ev.image ? (
+                                        <img src={ev.image} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="text-[10px] font-black text-slate-700 uppercase tracking-widest">No Poster Uploaded</div>
+                                    )}
                                     <div className="absolute top-4 right-4 flex gap-2">
                                         <button onClick={() => openEdit(ev)} className="p-2 bg-black/50 backdrop-blur-md rounded-full text-white hover:bg-[#FF5733] transition-colors shadow-lg">
                                             <Edit2 className="w-4 h-4" />
@@ -298,6 +302,16 @@ export default function AdminEventsPage() {
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Start Time</label>
+                                                    <input type="time" className="admin-input bg-slate-900" value={formData.startTime} onChange={(e) => setFormData({ ...formData, startTime: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">End Time</label>
+                                                    <input type="time" className="admin-input bg-slate-900" value={formData.endTime} onChange={(e) => setFormData({ ...formData, endTime: e.target.value })} />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
                                                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Event Date (Deadline)</label>
                                                     <input required type="date" className="admin-input" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
                                                 </div>
@@ -353,7 +367,7 @@ export default function AdminEventsPage() {
                                             <div className="grid grid-cols-1 gap-4">
                                                 <div>
                                                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Event Organizer</label>
-                                                    <input type="text" className="admin-input" value={formData.organizer} onChange={(e) => setFormData({ ...formData, organizer: e.target.value })} placeholder="Green Foundation" />
+                                                    <input type="text" className="admin-input" value={formData.organizer} onChange={(e) => setFormData({ ...formData, organizer: e.target.value })} placeholder="Organization Name" />
                                                 </div>
                                             </div>
 

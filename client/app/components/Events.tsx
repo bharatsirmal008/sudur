@@ -122,78 +122,68 @@ export default function Events() {
                                     </h3>
 
                                     {/* Info Bar - Single Line */}
-                                    <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
-                                        <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
-                                            <Calendar className="w-4.5 h-4.5" />
-                                            <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
-                                            <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
-                                            <span>{event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : "Time TBA"}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
-                                            <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
-                                            <span className="max-w-[200px] truncate">{event.location}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <p className="text-gray-500 font-medium leading-relaxed line-clamp-2">
-                                            {event.shortDescription || event.description}
-                                        </p>
-
-                                        {/* Impact Points */}
-                                        <div className="space-y-2.5 pt-2">
-                                            <div className="flex items-start gap-3 text-[13px] font-bold text-[#14181f]/80 leading-snug">
-                                                <span className="text-red-500 shrink-0">❤️</span>
-                                                Improving local environmental health.
+                                        <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
+                                            <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
+                                                <Calendar className="w-4.5 h-4.5" />
+                                                <span>{new Date(event.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                             </div>
-                                            <div className="flex items-start gap-3 text-[13px] font-bold text-[#14181f]/80 leading-snug">
-                                                <span className="text-red-500 shrink-0">❤️</span>
-                                                Promoting neighborhood cleanliness together.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Divider (Desktop only) */}
-                                <div className="hidden md:block w-px h-32 bg-slate-100 mx-4" />
-
-                                <div className="w-full md:w-auto shrink-0 md:px-6">
-                                    {(() => {
-                                        const evDate = new Date(event.date);
-                                        const today = new Date();
-                                        today.setHours(0, 0, 0, 0);
-                                        const isExpired = evDate < today;
-                                        const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
-
-                                        return (
-                                            <Link
-                                                href={`/event/${event.slug || event._id}`}
-                                                className={`relative w-full md:w-auto flex flex-col items-center justify-center py-4 px-10 rounded-[10px] shadow-xl transition-all overflow-hidden group/btn cursor-pointer ${status === 'closed'
-                                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
-                                                    : 'bg-[#fdf2f8] border border-[#ff5722]/10 hover:shadow-[#ff5722]/10'
-                                                    }`}
-                                            >
-                                                {status !== 'closed' && (
-                                                    <img
-                                                        src="/pink_ellipse.svg"
-                                                        className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover/btn:scale-125 transition-transform duration-700 pointer-events-none"
-                                                        alt=""
-                                                    />
-                                                )}
-                                                <div className="relative z-10 flex flex-col items-center justify-center">
-                                                    <span className={`text-sm font-black tracking-tight whitespace-nowrap ${status === 'closed'
-                                                        ? 'text-slate-400'
-                                                        : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
-                                                        }`}>
-                                                        {status === 'closed' ? 'Entry Closed' : status === 'live' ? 'Live Now' : 'Join Event'}
-                                                    </span>
-                                                    {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
+                                            {event.startTime && event.endTime && (
+                                                <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                                    <Clock className="w-4.5 h-4.5 text-[#FFCB3B]" />
+                                                    <span>{event.startTime} - {event.endTime}</span>
                                                 </div>
-                                            </Link>
-                                        );
-                                    })()}
+                                            )}
+                                            <div className="flex items-center gap-2.5 text-sm font-bold text-slate-400 shrink-0">
+                                                <MapPin className="w-4.5 h-4.5 text-[#2ea0c5]" />
+                                                <span className="max-w-[200px] truncate">{event.location}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <p className="text-gray-500 font-medium leading-relaxed line-clamp-2">
+                                                {event.shortDescription || event.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Divider (Desktop only) */}
+                                    <div className="hidden md:block w-px h-32 bg-slate-100 mx-4" />
+
+                                    <div className="w-full md:w-auto shrink-0 md:px-6">
+                                        {(() => {
+                                            const evDate = new Date(event.date);
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0);
+                                            const isExpired = evDate < today;
+                                            const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
+
+                                            return (
+                                                <Link
+                                                    href={status === 'closed' ? "#" : `/event/${event.slug || event._id}`}
+                                                    className={`relative w-full md:w-auto flex flex-col items-center justify-center py-4 px-10 rounded-[10px] shadow-xl transition-all overflow-hidden group/btn ${status === 'closed'
+                                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
+                                                        : 'bg-[#fdf2f8] border border-[#ff5722]/10 hover:shadow-[#ff5722]/10 cursor-pointer'
+                                                        }`}
+                                                >
+                                                    {status !== 'closed' && (
+                                                        <img
+                                                            src="/pink_ellipse.svg"
+                                                            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover/btn:scale-125 transition-transform duration-700 pointer-events-none"
+                                                            alt=""
+                                                        />
+                                                    )}
+                                                    <div className="relative z-10 flex flex-col items-center justify-center">
+                                                        <span className={`text-sm font-black tracking-tight whitespace-nowrap ${status === 'closed'
+                                                            ? 'text-slate-400'
+                                                            : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
+                                                            }`}>
+                                                            {status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Event'}
+                                                        </span>
+                                                        {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })()}
                                 </div>
                             </motion.div>
                         ))}

@@ -122,13 +122,24 @@ export default function EventDetailsPage() {
                         <div className="absolute inset-0 rounded-[10px] bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                         <div className="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="inline-block px-4 py-1.5 rounded-full bg-[#ff5722] text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4"
-                            >
-                                Upcoming Event
-                            </motion.div>
+                            {(() => {
+                                const evDate = new Date(event.date);
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const isExpired = evDate < today;
+                                const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
+
+                                return (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={`inline-block px-4 py-1.5 rounded-full text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${status === 'closed' ? 'bg-slate-500' : status === 'live' ? 'bg-green-600' : 'bg-[#ff5722]'
+                                            }`}
+                                    >
+                                        {status === 'closed' ? 'Event Closed' : status === 'live' ? 'Live Now' : 'Upcoming Event'}
+                                    </motion.div>
+                                );
+                            })()}
                             <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-tight tracking-tight">
                                 {event.title}
                             </h1>
@@ -144,72 +155,77 @@ export default function EventDetailsPage() {
                     {/* Left Column: Details & Content */}
                     <div className="lg:col-span-7 space-y-16">
                         {/* Highlights Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                className="relative p-8 bg-white rounded-[10px] border border-slate-50 shadow-2xl shadow-slate-200/50 overflow-hidden group/item"
-                            >
-                                <img src="/yellow_ellipse.svg" alt="" className="absolute top-2 right-2 w-32 object-contain opacity-100 group-hover/item:scale-110 transition-transform duration-1000 pointer-events-none" />
-                                <div className="relative z-10">
-                                    <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/10 flex items-center justify-center mb-6">
-                                        <Activity className="w-6 h-6 text-[#ff5722]" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-[#062a24] mb-4">Activities</h3>
-                                    <p className="text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">
-                                        {event.activities || "Experience an immersive day of learning, networking, and community growth with expert-led sessions."}
-                                    </p>
-                                </div>
-                            </motion.div>
+                        {(event.activities || event.shortDescription) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {event.activities && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        className="relative p-8 bg-white rounded-[10px] border border-slate-50 shadow-2xl shadow-slate-200/50 overflow-hidden group/item"
+                                    >
+                                        <img src="/yellow_ellipse.svg" alt="" className="absolute top-2 right-2 w-32 object-contain opacity-100 group-hover/item:scale-110 transition-transform duration-1000 pointer-events-none" />
+                                        <div className="relative z-10">
+                                            <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/10 flex items-center justify-center mb-6">
+                                                <Activity className="w-6 h-6 text-[#ff5722]" />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-[#062a24] mb-4">Activities</h3>
+                                            <p className="text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">
+                                                {event.activities}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
 
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                className="relative p-8 bg-white rounded-[10px] border border-slate-50 shadow-2xl shadow-slate-200/50 overflow-hidden group/item"
-                            >
-                                <img src="/green_ellipse.svg" alt="" className="absolute top-2 right-2 w-32 object-contain opacity-100 group-hover/item:scale-110 transition-transform duration-1000 pointer-events-none" />
-                                <div className="relative z-10">
-                                    <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/10 flex items-center justify-center mb-6">
-                                        <HandHeart className="w-6 h-6 text-[#ff5722]" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-[#062a24] mb-4">Impact</h3>
-                                    <p className="text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">
-                                        {event.shortDescription || "Every participant helps us move one step closer to our community development goals."}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        </div>
+                                {event.shortDescription && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        className="relative p-8 bg-white rounded-[10px] border border-slate-50 shadow-2xl shadow-slate-200/50 overflow-hidden group/item"
+                                    >
+                                        <img src="/green_ellipse.svg" alt="" className="absolute top-2 right-2 w-32 object-contain opacity-100 group-hover/item:scale-110 transition-transform duration-1000 pointer-events-none" />
+                                        <div className="relative z-10">
+                                            <div className="w-12 h-12 rounded-2xl bg-[#ff5722]/10 flex items-center justify-center mb-6">
+                                                <HandHeart className="w-6 h-6 text-[#ff5722]" />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-[#062a24] mb-4">Impact</h3>
+                                            <p className="text-slate-500 font-medium leading-relaxed whitespace-pre-wrap">
+                                                {event.shortDescription}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Events Details Section (Main Content) */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="w-1.5 h-8 bg-[#ff5722] rounded-full" />
-                                <h2 className="text-3xl font-black text-[#062a24]">About This Event</h2>
-                            </div>
-                            <div className="prose prose-lg text-slate-500 font-medium leading-[1.8] max-w-none whitespace-pre-wrap">
-                                {event.description}
-                            </div>
-                        </motion.div>
+                        {event.description && (
+                            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="w-1.5 h-8 bg-[#ff5722] rounded-full" />
+                                    <h2 className="text-3xl font-black text-[#062a24]">About This Event</h2>
+                                </div>
+                                <div className="prose prose-lg text-slate-500 font-medium leading-[1.8] max-w-none whitespace-pre-wrap">
+                                    {event.description}
+                                </div>
+                            </motion.div>
+                        )}
 
                         {/* Impact Points */}
-                        <div className="bg-white rounded-[10px] p-10 border border-slate-100 shadow-xl shadow-slate-100/30">
-                            <h3 className="text-2xl font-black text-[#062a24] mb-8">Impact of Your Support</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {(event.impactPoints && event.impactPoints.length > 0 ? event.impactPoints : [
-                                    "Community Development",
-                                    "Skill Empowerment",
-                                    "Resource Support",
-                                    "Voluntary Growth"
-                                ]).map((point, i) => (
-                                    <div key={i} className="flex gap-4 items-center group">
-                                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-[#ff5722] transition-colors shrink-0">
-                                            <CheckCircle2 className="w-5 h-5 text-[#ff5722] group-hover:text-white transition-colors" />
+                        {event.impactPoints && event.impactPoints.length > 0 && (
+                            <div className="bg-white rounded-[10px] p-10 border border-slate-100 shadow-xl shadow-slate-100/30">
+                                <h3 className="text-2xl font-black text-[#062a24] mb-8">Impact of Your Support</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {event.impactPoints.map((point, i) => (
+                                        <div key={i} className="flex gap-4 items-center group">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-[#ff5722] transition-colors shrink-0">
+                                                <CheckCircle2 className="w-5 h-5 text-[#ff5722] group-hover:text-white transition-colors" />
+                                            </div>
+                                            <span className="font-bold text-[#062a24]">{point}</span>
                                         </div>
-                                        <span className="font-bold text-[#062a24]">{point}</span>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Secondary Details Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -268,21 +284,25 @@ export default function EventDetailsPage() {
 
                             <div className="relative z-10">
                                 <h2 className="text-3xl font-black mb-2 text-[#062a24]">Events Details</h2>
-                                <p className="text-[#5e7d78] text-sm font-medium leading-relaxed mb-10">
-                                    Give back to the community at our charity event!
-                                </p>
+                                {event.shortDescription && (
+                                    <p className="text-[#5e7d78] text-sm font-medium leading-relaxed mb-10">
+                                        {event.shortDescription}
+                                    </p>
+                                )}
 
                                 <div className="space-y-6 mb-10">
                                     {/* Organizer Row */}
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
-                                            <User className="w-6 h-6 text-[#ff5722]" />
+                                    {event.organizer && (
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                                                <User className="w-6 h-6 text-[#ff5722]" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Organizer :</p>
+                                                <p className="text-lg font-black text-[#062a24]">{event.organizer}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Organizer :</p>
-                                            <p className="text-lg font-black text-[#062a24]">{event.organizer || "Green Foundation"}</p>
-                                        </div>
-                                    </div>
+                                    )}
 
                                     {/* Location Row */}
                                     <div className="flex items-center gap-5">
@@ -309,24 +329,28 @@ export default function EventDetailsPage() {
                                     </div>
 
                                     {/* Time Row */}
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
-                                            <Clock className="w-6 h-6 text-[#ff5722]" />
+                                    {event.startTime && event.endTime && (
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                                                <Clock className="w-6 h-6 text-[#ff5722]" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Time Slot :</p>
+                                                <p className="text-lg font-black text-[#062a24]">
+                                                    {event.startTime} - {event.endTime}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[#5e7d78] text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Time Slot :</p>
-                                            <p className="text-lg font-black text-[#062a24]">
-                                                {event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : "03:00 pm - 10:00 pm"}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {(() => {
-                                    const evDate = new Date(event.date);
+                                    const hasDate = !!event.date;
+                                    const evDate = hasDate ? new Date(event.date) : null;
                                     const today = new Date();
                                     today.setHours(0, 0, 0, 0);
-                                    const isExpired = evDate < today;
+                                    
+                                    const isExpired = evDate ? evDate < today : false;
                                     const status = (event.status === 'closed' || isExpired) ? 'closed' : (event.status || 'scheduled');
 
                                     return (
@@ -334,9 +358,9 @@ export default function EventDetailsPage() {
                                             <Link
                                                 href={status === 'closed' ? "#" : (event.registrationLink || "#")}
                                                 target={status === 'closed' ? "" : "_blank"}
-                                                className={`relative px-12 py-4 rounded-[10px] shadow-xl transition-all overflow-hidden group/btn cursor-pointer ${status === 'closed'
-                                                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200"
-                                                    : "bg-[#fdf2f8] border border-[#ff5722]/10 hover:shadow-[#ff5722]/10"
+                                                className={`relative px-12 py-4 rounded-[10px] shadow-xl transition-all overflow-hidden group/btn ${status === 'closed'
+                                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
+                                                    : 'bg-[#fdf2f8] border border-[#ff5722]/10 hover:shadow-[#ff5722]/10 cursor-pointer'
                                                     }`}
                                             >
                                                 {status !== 'closed' && (
@@ -351,7 +375,7 @@ export default function EventDetailsPage() {
                                                     ? 'text-slate-400'
                                                     : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                     }`}>
-                                                    {status === 'closed' ? "Registration closed" : status === 'live' ? "Join live Event" : "Join Us Now"}
+                                                    {!hasDate ? "Join Us" : (status === 'closed' ? "Closed Event" : status === 'live' ? "Join live Event" : "Join Us Now")}
                                                 </span>
                                                 </div>
                                             </Link>
