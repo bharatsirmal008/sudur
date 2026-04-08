@@ -130,7 +130,10 @@ app.post('/api/login', async (req, res) => {
     const adminEmail = process.env.ADMIN_EMAIL || "admin@gmail.com";
     const adminPassword = process.env.ADMIN_PASSWORD || "admin@2000";
 
-    if (email === adminEmail && password === adminPassword) {
+    const cleanEmail = (email || "").toLowerCase().trim();
+    const cleanAdminEmail = adminEmail.toLowerCase().trim();
+
+    if (cleanEmail === cleanAdminEmail && password === adminPassword) {
         return res.json({
             id: "admin-id",
             name: "System Admin",

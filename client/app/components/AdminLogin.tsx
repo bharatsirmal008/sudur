@@ -26,7 +26,7 @@ export default function AdminLogin() {
             });
 
             if (res?.error) {
-                setError("Invalid admin credentials");
+                setError(res.error || "Invalid admin credentials");
                 setIsLoading(false);
                 return;
             }

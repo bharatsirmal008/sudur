@@ -12,6 +12,13 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+// Validate config exists
+const isConfigValid = !!firebaseConfig.apiKey && !!firebaseConfig.authDomain;
+
+if (!isConfigValid && typeof window !== 'undefined') {
+    console.warn("Firebase config is missing from environment variables. Social login will not work.");
+}
+
 // Initialize Firebase securely (prevent multiple instances in Next.js)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app = (getApps().length === 0 && isConfigValid) ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);

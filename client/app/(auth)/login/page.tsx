@@ -26,13 +26,17 @@ function LoginContent() {
     const handleGoogleLogin = async () => {
         setIsLoading(true);
         setError("");
+        console.log("Starting Google Login...");
 
         try {
+            console.log("Firebase Auth State:", !!auth);
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
+            console.log("Opening Firebase Popup...");
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
+            console.log("Firebase Login Success for:", user.email);
 
             // Strict check for actual, verified @gmail.com IDs
             if (!user.email?.toLowerCase().endsWith("@gmail.com")) {
@@ -51,11 +55,14 @@ function LoginContent() {
             }
 
             // Sync with NextAuth backend
+            console.log("Syncing with NextAuth...");
             const res = await signIn("credentials", {
                 redirect: false,
                 email: user.email,
                 isFirebase: "true",
             });
+
+            console.log("NextAuth Response:", res);
 
             if (res?.error) {
                 setError(res.error);
@@ -66,7 +73,7 @@ function LoginContent() {
             router.push("/dashboard");
             router.refresh();
         } catch (err: unknown) {
-            console.error("Firebase Auth Error:", err);
+            console.error("Firebase Auth Error Full Trace:", err);
             const message = err instanceof Error ? err.message : "Google sign-in failed";
             setError(message || "Google sign-in failed. Please use a verified account.");
             setIsLoading(false);
