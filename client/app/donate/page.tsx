@@ -42,7 +42,7 @@ export default function DonatePage() {
         "General Donation"
     ];
 
-    const paymentMethods = ["eSewa", "Khalti", "Bank Transfer", "Other"];
+    const paymentMethods = ["eSewa", "Bank Transfer"];
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -426,16 +426,19 @@ export default function DonatePage() {
                                             className="flex flex-col items-center justify-center p-8 bg-gray-50/50 rounded-3xl border border-gray-100 overflow-hidden"
                                         >
                                             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Scan to Pay via {formData.paymentMethod}</p>
-                                            <div className="relative group p-4 bg-white rounded-2xl shadow-lg border border-gray-50">
+                                            <div className="relative group p-4 bg-white rounded-2xl shadow-lg border border-gray-50 text-center">
                                                 <img
-                                                    src="/payment_qr.jpeg"
-                                                    alt="Payment QR"
-                                                    className="w-44 h-44 object-contain rounded-lg"
+                                                    src={formData.paymentMethod === "Bank Transfer" ? "/Bank_QR.jpeg" : "/payment_qr.jpeg"}
+                                                    alt={`${formData.paymentMethod} QR`}
+                                                    className="w-56 h-auto object-contain rounded-lg mx-auto"
                                                 />
                                                 <div className="absolute inset-0 bg-[#2ea0c5]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
                                             </div>
-                                            <p className="mt-6 text-gray-500 font-medium text-center max-w-[200px]">
-                                                Please scan the QR code above or use the bank details provided.
+                                            <p className="mt-6 text-gray-500 font-bold text-center">
+                                                {formData.paymentMethod === "Bank Transfer" ? "Youth Association Of Purbichauki" : "eSewa ID: 98XXXXXXX"}
+                                            </p>
+                                            <p className="mt-2 text-gray-400 text-xs font-medium text-center max-w-[250px]">
+                                                Please scan the QR code above and upload the screenshot below for verification.
                                             </p>
                                         </motion.div>
                                     )}

@@ -93,7 +93,7 @@ export default function TeamPage() {
 
                         <div className="relative">
                             <motion.h1
-                                className="relative z-10 mb-8 text-5xl md:text-7xl font-black leading-[1.1] tracking-[-0.04em] pr-12"
+                                className="relative z-10 mb-8 text-4xl sm:text-5xl md:text-7xl font-black leading-[1.1] tracking-tight pr-4 md:pr-12"
                                 style={{ color: "var(--grayscale--black)" }}
                                 initial="hidden"
                                 animate="visible"
@@ -133,16 +133,16 @@ export default function TeamPage() {
 
                             {/* Pink Ellipse Asset - Layered behind Heading */}
                             <img
-                                src="https://cdn.prod.website-files.com/64e379f5c8606ea47c3e346c/64eed5c09a45452fb1c2b612_pink_ellipse.svg"
+                                src="/pink_ellipse.svg"
                                 alt=""
-                                className="absolute -left-25 -top-8 -z-10 w-35 h-35 opacity-90 pointer-events-none transition-transform duration-700 hover:scale-110"
+                                className="absolute -left-10 -top-8 -z-10 w-32 h-32 opacity-90 pointer-events-none transition-transform duration-700 hover:scale-110"
                             />
 
                             {/* Green Ellipse Asset - Layered between Headings */}
                             <img
-                                src="https://cdn.prod.website-files.com/64e379f5c8606ea47c3e346c/64eed5c0c3b6732ca12b34fa_green_ellipse.svg"
+                                src="/green_ellipse.svg"
                                 alt=""
-                                className="absolute left-[60%] bottom-[-40px] -z-10 w-36 h-36 opacity-90 pointer-events-none"
+                                className="absolute left-[60%] bottom-[-20px] -z-10 w-36 h-36 opacity-90 pointer-events-none"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ export default function TeamPage() {
                         <img
                             src="https://cdn.prod.website-files.com/64e379f5c8606ea47c3e346c/64eed5c145b217c3c3cee33b_Underline%204.svg"
                             alt=""
-                            className="mb-8 w-48"
+                            className="mb-8 w-32 md:w-48"
                         />
 
                         <p
@@ -179,10 +179,10 @@ export default function TeamPage() {
 
                     {/* Right Column (Hero Image with Mask) */}
                     <div className="relative w-full max-w-[600px] flex justify-center lg:justify-end">
-                        <div className="relative w-[380px] h-[380px] md:w-[600px] md:h-[600px] rounded-[48px] overflow-hidden group">
+                        <div className="relative w-full max-w-[380px] aspect-square md:max-w-[600px] md:w-[600px] md:h-[600px] rounded-[48px] overflow-hidden group">
                             {/* Main Community Photo */}
                             <img
-                                src="/volunteer_community_hero.png"
+                                src="/Volunteers_team.png"
                                 alt="Community volunteers"
                                 className="w-full h-full object-cover relative z-10 transition-transform duration-700 group-hover:scale-105"
                             />

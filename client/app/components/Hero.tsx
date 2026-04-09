@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Hero() {
     return (
-        <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+        <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black py-20 md:py-0">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
                 <Image

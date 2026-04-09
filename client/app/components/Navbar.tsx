@@ -108,6 +108,19 @@ export default function Navbar() {
               <span className="relative z-10">Sign In</span>
             </Link>
           )}
+
+          {/* New Donate Button in Navbar */}
+          <Link
+            href="/donate"
+            className={`relative overflow-hidden inline-flex items-center justify-center rounded-[12px] px-6 py-2.5 text-sm font-black transition-all duration-300 active:scale-[0.98] ${isLightTheme
+              ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-xl shadow-emerald-500/10"
+              : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-xl shadow-emerald-500/20"
+              }`}
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              Donate <Heart className="w-4 h-4 fill-current" />
+            </span>
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -130,7 +143,9 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 right-0 bg-[#0a0a0a] border-b border-slate-800 shadow-lg py-4 px-4 flex flex-col gap-4 md:hidden"
+            className={`absolute top-full left-0 right-0 border-b shadow-lg py-4 px-4 flex flex-col gap-4 md:hidden ${
+              isLightTheme ? "bg-white border-gray-100" : "bg-[#0a0a0a] border-slate-800"
+            }`}
           >
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href.startsWith("/#") && pathname === "/");
@@ -139,8 +154,9 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-base font-medium py-2 border-b border-slate-800 last:border-0 transition-colors ${isActive && isLightTheme ? "text-[#2ea0c5]" : "text-white"
-                    } hover:text-[#2ea0c5]`}
+                  className={`block text-base font-bold py-2 border-b last:border-0 transition-colors ${
+                    isLightTheme ? "border-gray-50" : "border-slate-800"
+                  } ${isActive ? "text-[#2ea0c5]" : isLightTheme ? "text-slate-600" : "text-white"} hover:text-[#2ea0c5]`}
                 >
                   {link.name}
                 </Link>
@@ -149,7 +165,11 @@ export default function Navbar() {
             <div className="flex flex-col gap-3 pt-4">
               <Link
                 href="/donate"
-                className="inline-flex items-center gap-2 bg-emerald-950/30 hover:bg-emerald-950/50 text-emerald-400 text-sm font-medium py-3 px-5 rounded-md border border-emerald-900/50 transition-colors"
+                className={`inline-flex items-center gap-2 text-sm font-bold py-3 px-5 rounded-md border transition-colors ${
+                  isLightTheme 
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100" 
+                    : "bg-emerald-950/30 text-emerald-400 border-emerald-900/50 hover:bg-emerald-950/50"
+                }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Donate Now
@@ -159,9 +179,13 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full inline-flex items-center gap-3 rounded-xl bg-slate-800 px-5 py-3 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+                  className={`w-full inline-flex items-center gap-3 rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                    isLightTheme ? "bg-slate-50 text-slate-900 hover:bg-slate-100" : "bg-slate-800 text-white hover:bg-slate-700"
+                  }`}
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-slate-600 flex items-center justify-center shrink-0">
+                  <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border ${
+                    isLightTheme ? "bg-indigo-50 border-indigo-100" : "bg-indigo-900/50 border-slate-600"
+                  }`}>
                     {(session.user as any)?.image ? (
                       <img src={(session.user as any).image} alt="Dashboard" className="w-full h-full object-cover" />
                     ) : (
