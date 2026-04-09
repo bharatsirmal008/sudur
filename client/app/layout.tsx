@@ -1,7 +1,6 @@
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Marquee from "./components/Marquee";
 import AuthProvider from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Outfit, Space_Grotesk } from "next/font/google";
@@ -55,7 +54,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased min-h-screen flex flex-col bg-black text-gray-200 transition-colors duration-300 font-sans">
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>
-            <Marquee />
             <Navbar />
             <div className="flex-1">{children}</div>
             <Footer />
