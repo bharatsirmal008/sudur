@@ -69,14 +69,13 @@ export default function About() {
           className="absolute -bottom-[10%] -right-[5%] w-[30rem] h-[30rem] z-0 blur-[40px] pointer-events-none"
       />
 
-      {/* Text Container */}
       <div className="relative z-10 px-4 w-full text-center">
-        <h1 className="font-black tracking-tighter text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-[1.2] md:leading-[1.2] flex flex-col items-center justify-center gap-4">
+        <h1 className="font-black tracking-tighter text-4xl sm:text-7xl md:text-8xl lg:text-9xl leading-[1.2] md:leading-[1.2] flex flex-col items-center justify-center gap-4">
           
           {/* Line 1 */}
-          <div className="flex flex-wrap justify-center gap-x-[0.3em]">
+           <div className="flex flex-wrap justify-center gap-x-[0.3em] w-full">
             {line1.split(" ").map((word, wIdx) => (
-               <span key={wIdx} className="inline-flex overflow-visible">
+               <span key={wIdx} className="flex flex-wrap justify-center overflow-visible">
                   {word.split("").map((char, cIdx) => {
                     const charIndex = wIdx * 10 + cIdx; // unique staggering value
                     return (
@@ -98,8 +97,8 @@ export default function About() {
           </div>
 
           {/* Line 2 with Gradient */}
-          <div className="flex flex-wrap justify-center">
-             <span className="inline-flex overflow-visible pb-4 pt-2">
+          <div className="flex flex-wrap justify-center w-full">
+             <span className="flex flex-wrap justify-center overflow-visible pb-4 pt-2">
                 {line2.split("").map((char, cIdx) => (
                   <motion.span
                     key={cIdx}

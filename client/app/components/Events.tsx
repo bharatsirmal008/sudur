@@ -117,7 +117,7 @@ export default function Events() {
 
                                 {/* Middle Section: Content */}
                                 <div className="flex-1 py-10 md:py-0 md:px-12 space-y-6">
-                                    <h3 className="text-3xl md:text-4xl font-black text-[#14181f] tracking-tight truncate pb-1">
+                                    <h3 className="text-xl md:text-4xl font-black text-[#14181f] tracking-tight line-clamp-2 md:truncate pb-1">
                                         {event.title}
                                     </h3>
 
