@@ -19,14 +19,14 @@ export default function Hero() {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-8 md:px-20 lg:px-32 relative z-10 text-center">
+            <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 relative z-10 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="max-w-5xl m-auto space-y-8"
+                    className="w-full max-w-5xl m-auto space-y-6 md:space-y-10"
                 >
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white pb-2 leading-tight kosmik-title flex flex-wrap justify-center gap-[0.2em] md:gap-[0.3em]">
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white pb-2 leading-[1.1] md:leading-tight kosmik-title flex flex-wrap justify-center gap-[0.2em] md:gap-[0.3em]">
                         {"Youth Association of".split(" ").map((word, wordIdx) => (
                             <span key={`word-${wordIdx}`} className="flex">
                                 {word.split("").map((char, charIdx) => {
@@ -87,7 +87,7 @@ export default function Hero() {
                                 }}
                                 className="inline-block whitespace-nowrap"
                             >
-                                <span className="text-xl md:text-3xl font-black tracking-widest uppercase italic bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-[#2ea0c5] to-orange-400 px-12 hover:scale-105 transition-transform inline-block">
+                                <span className="text-lg sm:text-xl md:text-3xl font-black tracking-widest uppercase italic bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-[#2ea0c5] to-orange-400 px-12 hover:scale-105 transition-transform inline-block">
                                     🎓 Scholarship 2082 for SEE Students — Apply Now
                                 </span>
                             </motion.div>
