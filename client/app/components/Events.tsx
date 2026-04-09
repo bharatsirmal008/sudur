@@ -116,12 +116,12 @@ export default function Events() {
                                 </div>
 
                                 {/* Middle Section: Content */}
-                                <div className="flex-1 py-10 md:py-0 md:px-12 space-y-6">
-                                    <h3 className="text-xl md:text-4xl font-black text-[#14181f] tracking-tight line-clamp-2 md:truncate pb-1">
+                                <div className="flex-1 py-8 md:py-0 px-2 md:px-12 space-y-5 w-full overflow-hidden text-left">
+                                    <h3 className="text-xl sm:text-2xl md:text-4xl font-black text-[#14181f] tracking-tight line-clamp-2 md:truncate pb-1 leading-tight">
                                         {event.title}
                                     </h3>
 
-                                    <div className="flex items-center gap-8 whitespace-nowrap overflow-x-auto custom-scrollbar-hide pb-2 md:pb-0">
+                                    <div className="flex flex-wrap items-center gap-4 md:gap-8 pb-2 md:pb-0">
                                         {event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000 && (
                                             <div className="flex items-center gap-2.5 text-sm font-bold text-[#2ea0c5] shrink-0">
                                                 <Calendar className="w-4.5 h-4.5" />
