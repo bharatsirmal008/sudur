@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
     return (
@@ -74,21 +75,23 @@ export default function Hero() {
                         Join YAOP. Stronger Communities, Brighter Futures. We invite you to contribute your voice and your time. Through education and collective action, we can build a more sustainable and equitable society for all.
                     </p>
 
-                    {/* Animated Scholarship Headline */}
-                    <div className="relative mt-12 py-6 overflow-hidden max-w-4xl mx-auto rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10">
-                        <motion.div
-                            animate={{ x: ["50%", "-100%"] }}
-                            transition={{
-                                repeat: Infinity,
-                                duration: 12,
-                                ease: "linear"
-                            }}
-                            className="inline-block whitespace-nowrap"
-                        >
-                            <span className="text-xl md:text-3xl font-black tracking-widest uppercase italic bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-[#2ea0c5] to-orange-400 px-12">
-                                🎓 Scholarship 2082 for SEE Students — Apply Now
-                            </span>
-                        </motion.div>
+                    {/* Animated Scholarship Headline - Clickable and transparent */}
+                    <div className="relative mt-8 py-4 overflow-hidden max-w-5xl mx-auto">
+                        <Link href="/events" className="block cursor-pointer">
+                            <motion.div
+                                animate={{ x: ["100%", "-100%"] }}
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: 18,
+                                    ease: "linear"
+                                }}
+                                className="inline-block whitespace-nowrap"
+                            >
+                                <span className="text-xl md:text-3xl font-black tracking-widest uppercase italic bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-[#2ea0c5] to-orange-400 px-12 hover:scale-105 transition-transform inline-block">
+                                    🎓 Scholarship 2082 for SEE Students — Apply Now
+                                </span>
+                            </motion.div>
+                        </Link>
                     </div>
                 </motion.div>
             </div>
