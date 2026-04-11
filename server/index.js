@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb');
 const nodemailer = require('nodemailer');
+const { jsPDF } = require("jspdf");
 const dotenv = require('dotenv');
 const cloudinary = require('cloudinary').v2;
 
@@ -101,12 +102,79 @@ transporter.verify((error, success) => {
     }
 });
 
-const sendEmail = async (to, subject, text, html) => {
+const sendEmail = async (to, subject, text, html, attachments = []) => {
     try {
-        await transporter.sendMail({ from: `"Youth Association Of Purbichauki" <${process.env.GMAIL_USER}>`, to, subject, text, html });
+        await transporter.sendMail({ 
+            from: `"Youth Association Of Purbichauki" <${process.env.GMAIL_USER}>`, 
+            to, 
+            subject, 
+            text, 
+            html,
+            attachments
+        });
+        console.log(`[MAIL] Email sent successfully to ${to}`);
     } catch (error) {
-        console.error("Email failed:", error);
+        console.error("[MAIL] Dispatch failed:", error);
     }
+};
+
+// PDF Generation Helper for Donations
+const generateDonationPDF = (donation) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFillColor(22, 163, 74); // #16A34A Primary Green
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text("Youth Association of Purbichauki", 105, 25, { align: "center" });
+
+    // Title
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(26);
+    doc.text("DONATION RECEIPT", 105, 60, { align: "center" });
+    
+    // Content Block
+    doc.setFontSize(12);
+    doc.setTextColor(107, 114, 128);
+    const dateStr = new Date().toLocaleDateString();
+    doc.text(`Receipt Date: ${dateStr}`, 20, 80);
+    doc.text(`Transaction ID: ${donation.transactionId || 'N/A'}`, 140, 80);
+
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 85, 190, 85);
+
+    // Details Table-like Layout
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(14);
+    doc.text("Donor Information", 20, 100);
+    
+    doc.setFontSize(12);
+    doc.text(`Full Name: ${donation.fullName || 'N/A'}`, 25, 110);
+    doc.text(`Email: ${donation.email || 'N/A'}`, 25, 120);
+    doc.text(`Phone: ${donation.phoneNumber || 'N/A'}`, 25, 130);
+    doc.text(`Purpose: ${donation.purpose || 'General Support'}`, 25, 140);
+    doc.text(`Payment Method: ${donation.paymentMethod || 'N/A'}`, 25, 150);
+
+    // Amount Box
+    doc.setFillColor(240, 253, 244);
+    doc.rect(20, 165, 170, 30, 'F');
+    doc.setTextColor(21, 128, 61);
+    doc.setFontSize(20);
+    doc.text(`Total Contribution: NPR ${donation.amount || '0'}`, 105, 184, { align: "center" });
+
+    // Footer
+    doc.setTextColor(156, 163, 175);
+    doc.setFontSize(10);
+    doc.text("This is an electronically generated receipt verified by YAOP Administration.", 105, 220, { align: "center" });
+    doc.text("Thank you for choosing to make a difference.", 105, 226, { align: "center" });
+
+    // Signature Area
+    doc.setDrawColor(209, 213, 219);
+    doc.line(130, 260, 180, 260);
+    doc.text("Authorized Signature", 155, 268, { align: "center" });
+
+    return Buffer.from(doc.output('arraybuffer'));
 };
 
 // Slug Generator
@@ -634,16 +702,63 @@ app.get('/api/donations', async (req, res) => {
 app.patch('/api/donations/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
-        const { _id, createdAt, verifiedAt, ...updateData } = req.body;
+        const { status } = req.body;
+        console.log(`[ADMIN] Updating donation status for ID: ${id} to ${status}`);
         
-        await db.collection("donations").updateOne(
+        // 1. Fetch current donation for email processing
+        const donation = await db.collection("donations").findOne({ _id: new ObjectId(id) });
+        if (!donation) return res.status(404).json({ message: "Donation not found" });
+
+        // 2. Perform the update
+        const { _id, createdAt, verifiedAt, lastModifiedAt, ...updateData } = req.body;
+        const result = await db.collection("donations").updateOne(
             { _id: new ObjectId(id) },
             { $set: { ...updateData, lastModifiedAt: new Date() } }
         );
-        res.json({ message: "Donation record updated successfully" });
+
+        // 3. Trigger Email if verified
+        if (status === 'verified' && donation.status !== 'verified') {
+            const donorEmail = donation.email || donation.Email;
+            if (donorEmail) {
+                console.log(`[MAIL] Preparing verified donation receipt for: ${donorEmail}`);
+                const pdfBuffer = generateDonationPDF(donation);
+                
+                await sendEmail(
+                    donorEmail,
+                    "Official Donation Receipt - Youth Association of Purbichauki",
+                    `Hi ${donation.fullName},\n\nThank you for your generous contribution of NPR ${donation.amount}. Your donation has been verified.\n\nPlease find your official receipt attached to this email.`,
+                    `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1f2937;">
+                        <div style="background-color: #f0fdf4; padding: 40px; border-radius: 20px; border: 1px solid #dcfce7;">
+                            <h2 style="color: #16a34a; font-size: 24px; font-weight: 800; margin-bottom: 20px;">Thank You for Your Support!</h2>
+                            <p style="font-size: 16px; line-height: 1.6;">Dear <b>${donation.fullName}</b>,</p>
+                            <p style="font-size: 16px; line-height: 1.6;">We have successfully verified your donation of <b>NPR ${donation.amount}</b>. Your contribution is vital to our mission of building a brighter future for the community.</p>
+                            
+                            <div style="margin: 30px 0; padding: 20px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb;">
+                                <p style="margin: 0; font-size: 14px; color: #6b7280; text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;">Transaction Summary</p>
+                                <p style="margin: 8px 0 0 0; font-size: 15px;"><b>ID:</b> ${donation.transactionId}</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px;"><b>Method:</b> ${donation.paymentMethod}</p>
+                            </div>
+
+                            <p style="font-size: 15px; color: #4b5563;">Please find your official donation receipt attached to this email for your records.</p>
+                            <br/>
+                            <p style="margin: 0;">Warm regards,<br/><b>The Finance Team</b></p>
+                            <p style="margin: 0; font-weight: bold; color: #16a34a;">Youth Association of Purbichauki</p>
+                        </div>
+                    </div>
+                    `,
+                    [{
+                        filename: `YAOP_Receipt_${donation.transactionId || 'Donation'}.pdf`,
+                        content: pdfBuffer
+                    }]
+                );
+            }
+        }
+
+        res.json({ message: "Donation record updated and receipt sent if verified." });
     } catch (e) {
-        console.error("Donation patch error:", e);
-        res.status(500).json({ message: "Failed to update donation record" }); 
+        console.error("[ADMIN] Donation update error:", e);
+        res.status(500).json({ message: "Update failed", error: e.message }); 
     }
 });
 
