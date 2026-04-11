@@ -718,6 +718,31 @@ app.patch('/api/donations/:id/status', async (req, res) => {
 
         // 3. Trigger Email if verified
         if (status === 'verified' && donation.status !== 'verified') {
+            
+            // 4. Update Financial Summary Automatically
+            const donationData = await db.collection("donations").find({ status: 'verified' }).toArray();
+            const newTotalReceived = donationData.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            
+            let finances = await db.collection("finances").findOne({ type: 'summary' });
+            if (!finances) finances = { type: 'summary', totalSpent: 0 };
+            
+            const totalSpent = finances.totalSpent || 0;
+            const newRemainAmount = newTotalReceived - totalSpent;
+
+            await db.collection("finances").updateOne(
+                { type: 'summary' },
+                { 
+                    $set: { 
+                        totalReceived: newTotalReceived, 
+                        remainAmount: newRemainAmount,
+                        updatedAt: new Date() 
+                    } 
+                },
+                { upsert: true }
+            );
+
+            console.log(`[FINANCE] Summary updated: Total NPR ${newTotalReceived}, Remaining NPR ${newRemainAmount}`);
+
             const donorEmail = donation.email || donation.Email;
             if (donorEmail) {
                 console.log(`[MAIL] Preparing verified donation receipt for: ${donorEmail}`);
