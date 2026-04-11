@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Loader2, X, Bell, Info, Clock } from "lucide-react";
+import { Calendar, MapPin, Loader2, X, Bell, Info, Clock, Heart } from "lucide-react";
 import Link from "next/link";
 
 interface Event {
@@ -171,7 +171,7 @@ export default function Events() {
                                     {/* Divider (Desktop only) */}
                                     <div className="hidden md:block w-px h-32 bg-slate-100 mx-4" />
 
-                                    <div className="w-full md:w-auto shrink-0 md:px-6">
+                                    <div className="w-full md:w-auto shrink-0 md:px-6 flex flex-col gap-4">
                                         {(() => {
                                             const hasDate = !!event.date && !isNaN(new Date(event.date).getTime()) && new Date(event.date).getFullYear() > 2000;
                                             const evDate = hasDate ? new Date(event.date) : null;
@@ -208,6 +208,24 @@ export default function Events() {
                                                 </Link>
                                             );
                                         })()}
+
+                                        {/* Donate Button */}
+                                        <Link
+                                            href="/donate"
+                                            className="relative w-full md:w-auto flex flex-col items-center justify-center py-4 px-10 rounded-[10px] shadow-lg transition-all overflow-hidden group/donate bg-emerald-50 border border-emerald-100 hover:shadow-emerald-200/50 cursor-pointer"
+                                        >
+                                            <img
+                                                src="/green_ellipse.svg"
+                                                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/donate:scale-125 transition-transform duration-700 pointer-events-none"
+                                                alt=""
+                                            />
+                                            <div className="relative z-10 flex items-center justify-center gap-2">
+                                                <Heart className="w-4 h-4 text-emerald-600 group-hover/donate:scale-110 transition-transform" />
+                                                <span className="text-sm font-black tracking-tight whitespace-nowrap text-emerald-700">
+                                                    Donate Now
+                                                </span>
+                                            </div>
+                                        </Link>
                                 </div>
                             </motion.div>
                         ))}
