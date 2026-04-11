@@ -41,44 +41,44 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen flex items-center justify-center bg-[#F0FDF4] py-12 px-4 sm:px-6 lg:px-8">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="max-w-md w-full"
             >
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900 border-4 border-slate-800 shadow-2xl mb-6 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/30 to-purple-600/30"></div>
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[#16A34A] border-4 border-white shadow-2xl mb-6 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
                         <ShieldCheck className="w-10 h-10 text-white relative z-10" />
                     </div>
-                    <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 className="text-3xl font-black text-[#111827] tracking-tight">
                         Admin Portal
                     </h2>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    <p className="mt-2 text-sm text-slate-500 font-medium">
                         Secure access for authorized personnel only
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 py-10 px-8 shadow-2xl shadow-slate-200/50 dark:shadow-none rounded-[2rem] border border-slate-100 dark:border-slate-800 relative overflow-hidden">
-                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500"></div>
+                <div className="bg-white py-10 px-8 shadow-2xl shadow-green-100 rounded-[2rem] border border-slate-100 relative overflow-hidden">
+                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-400 via-[#16A34A] to-[#15803D]"></div>
 
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         {error && (
-                            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl text-sm font-bold border border-red-100 dark:border-red-900/30 flex items-center gap-2">
+                            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                                 {error}
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
+                            <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
                                 Admin Email
                             </label>
                             <input
                                 type="email"
                                 required
-                                className="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all font-medium"
+                                className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 text-[#111827] focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] outline-none transition-all font-medium"
                                 placeholder="admin@yourdomain.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -86,13 +86,13 @@ export default function AdminLogin() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
+                            <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
                                 Master Password
                             </label>
                             <input
                                 type="password"
                                 required
-                                className="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all font-medium"
+                                className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 text-[#111827] focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] outline-none transition-all font-medium"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -102,7 +102,7 @@ export default function AdminLogin() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full flex justify-center py-4 px-4 rounded-xl text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 shadow-xl shadow-slate-200 dark:shadow-none disabled:opacity-70 transition-all uppercase tracking-widest mt-8"
+                            className="w-full flex justify-center py-4 px-4 rounded-xl text-sm font-black text-white bg-[#16A34A] hover:bg-[#15803D] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#16A34A] shadow-xl shadow-green-100 disabled:opacity-70 transition-all uppercase tracking-widest mt-8"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Authenticate"}
                         </button>

@@ -49,8 +49,8 @@ export default function AdminLayout({
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-black">
-                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
             </div>
         );
     }
@@ -60,19 +60,19 @@ export default function AdminLayout({
     }
 
     return (
-        <div className="min-h-screen bg-black flex transition-colors duration-300 text-white">
+        <div className="min-h-screen bg-white flex transition-colors duration-300 text-[#111827]">
             {/* Sidebar */}
             <aside
                 className={`${isSidebarOpen ? "w-64" : "w-20"
-                    } border-r border-slate-800 bg-[#050505] transition-all duration-300 flex flex-col fixed inset-y-0 z-50`}
+                    } border-r border-slate-100 bg-[#F0FDF4] transition-all duration-300 flex flex-col fixed inset-y-0 z-50`}
             >
                 <div className="p-6 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-[#16A34A] flex items-center justify-center">
                             <Heart className="w-4 h-4 text-white" />
                         </div>
                         {isSidebarOpen && (
-                            <span className="font-bold text-lg text-white">AdminPanel</span>
+                            <span className="font-bold text-lg text-[#111827]">AdminPanel</span>
                         )}
                     </Link>
                 </div>
@@ -85,8 +85,8 @@ export default function AdminLayout({
                                 key={item.name}
                                 href={item.href}
                                 className={`flex items-center gap-3 p-3 rounded-xl transition-all ${isActive
-                                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none"
-                                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                    ? "bg-[#16A34A] text-white shadow-lg shadow-green-200"
+                                    : "text-slate-600 hover:bg-green-50"
                                     }`}
                             >
                                 <item.icon className="w-5 h-5" />
@@ -96,10 +96,10 @@ export default function AdminLayout({
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+                <div className="p-4 border-t border-slate-100">
                     <button
                         onClick={() => signOut({ callbackUrl: "/" })}
-                        className="flex items-center gap-3 p-3 w-full text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all rounded-xl"
+                        className="flex items-center gap-3 p-3 w-full text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all rounded-xl"
                     >
                         <LogOut className="w-5 h-5" />
                         {isSidebarOpen && <span className="font-medium">Logout</span>}
@@ -110,28 +110,28 @@ export default function AdminLayout({
             {/* Main Content */}
             <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"}`}>
                 {/* Header */}
-                <header className="h-20 bg-black/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 z-40">
+                <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 sticky top-0 z-40">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 hover:bg-slate-800 rounded-lg text-slate-400"
+                            className="p-2 hover:bg-slate-50 rounded-lg text-slate-500"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
-                        <h1 className="text-xl font-bold text-white">
+                        <h1 className="text-xl font-bold text-[#111827]">
                             {menuItems.find(item => item.href === pathname)?.name || "Dashboard"}
                         </h1>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-sm font-bold text-white">{settings?.adminName || session?.user?.name || "System Admin"}</p>
-                            <p className="text-xs text-slate-400">System Administrator</p>
+                            <p className="text-sm font-bold text-[#111827]">{settings?.adminName || session?.user?.name || "System Admin"}</p>
+                            <p className="text-xs text-slate-500">System Administrator</p>
                         </div>
                         {settings?.logoUrl ? (
-                            <img src={settings.logoUrl} alt="Admin Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-md shadow-indigo-500/10" />
+                            <img src={settings.logoUrl} alt="Admin Avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm" />
                         ) : (
-                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700">
+                            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center font-bold text-[#16A34A] border border-green-100">
                                 {(settings?.adminName || session?.user?.name || "A")[0].toUpperCase()}
                             </div>
                         )}

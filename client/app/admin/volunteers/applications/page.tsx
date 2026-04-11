@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "../../../context/ToastContext";
 import { 
     MessageSquare,
     AlertCircle,
@@ -45,6 +46,7 @@ interface VolunteerApplication {
 }
 
 export default function VolunteerApplicationsPage() {
+    const { showToast, confirm } = useToast();
     const [applications, setApplications] = useState<VolunteerApplication[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState<VolunteerApplication | null>(null);
@@ -77,7 +79,7 @@ export default function VolunteerApplicationsPage() {
                 body: JSON.stringify(editForm)
             });
             if (res.ok) {
-                alert("Changes saved!");
+                showToast("Changes saved successfully!", "success");
                 setIsEditing(false);
                 setSelectedApp({ ...selectedApp, ...editForm } as VolunteerApplication);
                 fetchApplications();
@@ -85,7 +87,7 @@ export default function VolunteerApplicationsPage() {
                 throw new Error("Save failed");
             }
         } catch (err) {
-            alert("Error saving changes");
+            showToast("Error saving changes", "error");
         } finally {
             setActionLoading(false);
         }
@@ -105,28 +107,34 @@ export default function VolunteerApplicationsPage() {
     };
 
     const handleApprove = async (id: string) => {
-        if (!confirm("Are you sure you want to approve this volunteer? they will be added to the public team section and notified via email.")) return;
-        
-        setActionLoading(true);
-        try {
-            const res = await fetch(`/api/volunteer-applications/${id}/approve`, { method: 'PATCH' });
-            if (res.ok) {
-                alert("Application Approved!");
-                setSelectedApp(null);
-                fetchApplications();
-            } else {
-                throw new Error("Approval failed");
-            }
-        } catch (err) {
-            alert("Error approving application");
-        } finally {
-            setActionLoading(false);
-        }
+        confirm({
+            title: "Approve Volunteer?",
+            message: "Are you sure you want to approve this volunteer? they will be added to the public team section and notified via email.",
+            confirmText: "Approve Member",
+            onConfirm: async () => {
+                setActionLoading(true);
+                try {
+                    const res = await fetch(`/api/volunteer-applications/${id}/approve`, { method: 'PATCH' });
+                    if (res.ok) {
+                        showToast("Application Approved!", "success");
+                        setSelectedApp(null);
+                        fetchApplications();
+                    } else {
+                        throw new Error("Approval failed");
+                    }
+                } catch (err) {
+                    showToast("Error approving application", "error");
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+            onCancel: () => {}
+        });
     };
 
     const handleReject = async () => {
         if (!rejectionReason.trim()) {
-            alert("Please provide a reason for rejection.");
+            showToast("Please provide a reason for rejection.", "warning");
             return;
         }
 
@@ -138,7 +146,7 @@ export default function VolunteerApplicationsPage() {
                 body: JSON.stringify({ reason: rejectionReason })
             });
             if (res.ok) {
-                alert("Application Rejected and User Notified.");
+                showToast("Application Rejected and User Notified.", "info");
                 setShowRejectionPrompt(false);
                 setSelectedApp(null);
                 setRejectionReason("");
@@ -147,7 +155,7 @@ export default function VolunteerApplicationsPage() {
                 throw new Error("Rejection failed");
             }
         } catch (err) {
-            alert("Error rejecting application");
+            showToast("Error rejecting application", "error");
         } finally {
             setActionLoading(false);
         }

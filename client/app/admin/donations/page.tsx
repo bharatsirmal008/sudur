@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "../../context/ToastContext";
 import { 
     Heart, 
     Search, 
@@ -30,7 +31,8 @@ import {
     ArrowUpRight,
     TrendingDown,
     Save,
-    Edit3
+    Edit3,
+    Trash2
 } from "lucide-react";
 
 interface Donation {
@@ -50,6 +52,7 @@ interface Donation {
 }
 
 export default function DonationsPage() {
+    const { showToast, confirm } = useToast();
     const [donations, setDonations] = useState<Donation[]>([]);
     const [totalSpent, setTotalSpent] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -115,7 +118,7 @@ export default function DonationsPage() {
                 setEditingField(null);
             }
         } catch (err) {
-            alert("Failed to update expenditure");
+            showToast("Failed to update expenditure", "error");
         } finally {
             setActionLoading(false);
         }
@@ -146,27 +149,34 @@ export default function DonationsPage() {
     };
 
     const handleUpdateStatus = async (id: string, status: 'verified' | 'declined') => {
-        if (!confirm(`Are you sure you want to mark this donation as ${status}?`)) return;
-        
-        setActionLoading(true);
-        try {
-            const res = await fetch(`/api/donations/${id}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
-            });
-            if (res.ok) {
-                alert(`Donation ${status}!`);
-                setSelectedDonation(null);
-                fetchData();
-            } else {
-                throw new Error("Update failed");
-            }
-        } catch (err) {
-            alert("Error updating donation status");
-        } finally {
-            setActionLoading(false);
-        }
+        confirm({
+            title: `Approve Donation?`,
+            message: `Are you sure you want to mark this donation as ${status}? This action is permanent.`,
+            confirmText: `Yes, ${status}`,
+            isDestructive: status === 'declined',
+            onConfirm: async () => {
+                setActionLoading(true);
+                try {
+                    const res = await fetch(`/api/donations/${id}/status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    if (res.ok) {
+                        showToast(`Donation ${status} successfully!`, "success");
+                        setSelectedDonation(null);
+                        fetchData();
+                    } else {
+                        throw new Error("Update failed");
+                    }
+                } catch (err) {
+                    showToast("Error updating donation status", "error");
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+            onCancel: () => {}
+        });
     };
 
     // Filter by Last 7 Days
@@ -191,11 +201,52 @@ export default function DonationsPage() {
     const totalReceived = manualReceived !== null ? manualReceived : autoTotalReceived;
     const remainingBalance = manualRemain !== null ? manualRemain : (totalReceived - totalSpent);
 
+    const handleDelete = async (id: string) => {
+        confirm({
+            title: "Delete Record?",
+            message: "Caution: Are you absolutely sure you want to PERMANENTLY delete this record? This action cannot be undone.",
+            confirmText: "Delete Permanently",
+            isDestructive: true,
+            onConfirm: async () => {
+                setActionLoading(true);
+                try {
+                    const res = await fetch(`/api/donations/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        showToast("Transaction deleted successfully", "success");
+                        setSelectedDonation(null);
+                        fetchData();
+                    }
+                } finally { setActionLoading(false); }
+            },
+            onCancel: () => {}
+        });
+    };
+
+    const handleDeleteAll = async () => {
+        confirm({
+            title: "Clear All History?",
+            message: "CRITICAL ACTION: Are you sure you want to delete ALL donation records? This will permanently erase the entire financial history from the database.",
+            confirmText: "Wipe Data",
+            isDestructive: true,
+            onConfirm: async () => {
+                setActionLoading(true);
+                try {
+                    const res = await fetch(`/api/donations`, { method: 'DELETE' });
+                    if (res.ok) {
+                        showToast("Financial history cleared", "success");
+                        fetchData();
+                    }
+                } finally { setActionLoading(false); }
+            },
+            onCancel: () => {}
+        });
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[600px]">
-                <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Syncing Financial Records...</p>
+                <Loader2 className="w-12 h-12 text-[#16A34A] animate-spin mb-4" />
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Syncing Financial Records...</p>
             </div>
         );
     }
@@ -205,11 +256,20 @@ export default function DonationsPage() {
             {/* Header & Advanced Stats Overview */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-                        <Wallet className="w-8 h-8 text-indigo-500" />
-                        Treasury Management
-                    </h1>
-                    <p className="text-slate-400 mt-1 font-medium italic">Monitor balance, revenues, and expenditures.</p>
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-3xl font-black text-[#111827] tracking-tight flex items-center gap-3">
+                            <Wallet className="w-8 h-8 text-[#16A34A]" />
+                            Treasury
+                        </h1>
+                        <button 
+                            onClick={handleDeleteAll}
+                            className="text-[10px] font-black uppercase text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded-full transition-colors flex items-center gap-1.5"
+                        >
+                            <Trash2 className="w-3 h-3" />
+                            Purge History
+                        </button>
+                    </div>
+                    <p className="text-slate-500 mt-1 font-medium italic">Monitor balance, revenues, and expenditures.</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-auto">
@@ -218,14 +278,14 @@ export default function DonationsPage() {
                             label="Total Fund Received" 
                             value={`Rs. ${totalReceived.toLocaleString()}`} 
                             icon={ArrowUpRight} 
-                            color="text-emerald-400" 
-                            bgColor="bg-emerald-500/10" 
+                            color="text-[#16A34A]" 
+                            bgColor="bg-green-50" 
                         />
                         <button 
                             onClick={() => { setEditingValue(totalReceived.toString()); setEditingField('received'); }}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-100 opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-200"
                         >
-                            <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
                         </button>
                     </div>
                     <div className="relative group">
@@ -233,14 +293,14 @@ export default function DonationsPage() {
                             label="Total Fund Spent" 
                             value={`Rs. ${totalSpent.toLocaleString()}`} 
                             icon={ArrowDownRight} 
-                            color="text-rose-400" 
-                            bgColor="bg-rose-500/10" 
+                            color="text-rose-600" 
+                            bgColor="bg-rose-50" 
                         />
                         <button 
                             onClick={() => { setEditingValue(totalSpent.toString()); setEditingField('spent'); }}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-100 opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-200"
                         >
-                            <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
                         </button>
                     </div>
                     <div className="relative group">
@@ -248,14 +308,14 @@ export default function DonationsPage() {
                             label="Remain Amount" 
                             value={`Rs. ${remainingBalance.toLocaleString()}`} 
                             icon={ShieldCheck} 
-                            color="text-indigo-400" 
-                            bgColor="bg-indigo-500/10" 
+                            color="text-indigo-600" 
+                            bgColor="bg-indigo-50" 
                         />
                         <button 
                             onClick={() => { setEditingValue(remainingBalance.toString()); setEditingField('remain'); }}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-100 opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-200"
                         >
-                            <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
                         </button>
                     </div>
                 </div>
@@ -268,33 +328,33 @@ export default function DonationsPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/90"
+                        className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                     >
                         <motion.div 
                             initial={{ scale: 0.9 }}
                             animate={{ scale: 1 }}
-                            className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl"
+                            className="bg-white border border-slate-100 p-8 rounded-[20px] w-full max-w-md shadow-2xl"
                         >
-                            <h3 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-                                <TrendingDown className={`w-5 h-5 ${editingField === 'spent' ? 'text-rose-500' : 'text-indigo-500'}`} />
+                            <h3 className="text-xl font-black text-[#111827] mb-4 flex items-center gap-2">
+                                <TrendingDown className={`w-5 h-5 ${editingField === 'spent' ? 'text-rose-600' : 'text-[#16A34A]'}`} />
                                 Update {editingField === 'spent' ? 'Total Expenditure' : editingField === 'received' ? 'Total Received' : 'Remain Amount'}
                             </h3>
-                            <p className="text-slate-400 text-sm mb-6 font-medium">Manually override the calculated financial values.</p>
+                            <p className="text-slate-500 text-sm mb-6 font-medium">Manually override the calculated financial values.</p>
                             <div className="relative mb-8">
-                                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input 
                                     type="number"
                                     value={editingValue}
                                     onChange={(e) => setEditingValue(e.target.value)}
-                                    className="w-full bg-black border border-slate-700 rounded-2xl py-4 pl-12 pr-4 text-white font-black text-xl focus:outline-none focus:border-indigo-500/50"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-[15px] py-4 pl-12 pr-4 text-[#111827] font-black text-xl focus:outline-none focus:border-[#16A34A]/50"
                                 />
                             </div>
                             <div className="flex gap-4">
-                                <button onClick={() => setEditingField(null)} className="flex-1 py-4 font-bold text-slate-500 hover:text-white transition-all">Cancel</button>
+                                <button onClick={() => setEditingField(null)} className="flex-1 py-4 font-bold text-slate-500 hover:text-[#111827] transition-all">Cancel</button>
                                 <button 
                                     onClick={handleUpdateFinances}
                                     disabled={actionLoading}
-                                    className={`flex-1 py-4 font-black text-white rounded-2xl shadow-xl disabled:opacity-50 ${editingField === 'spent' ? 'bg-rose-600 shadow-rose-500/20' : 'bg-indigo-600 shadow-indigo-500/20'}`}
+                                    className={`flex-1 py-4 font-black text-white rounded-[15px] shadow-xl disabled:opacity-50 ${editingField === 'spent' ? 'bg-rose-600 shadow-rose-100' : 'bg-[#16A34A] shadow-green-100'}`}
                                 >
                                     {actionLoading ? "Saving..." : "Update Total"}
                                 </button>
@@ -305,30 +365,30 @@ export default function DonationsPage() {
             </AnimatePresence>
 
             {/* List Header & Controls */}
-            <div className="bg-[#0a0a0a] border border-slate-800 rounded-[2rem] overflow-hidden">
-                <div className="p-8 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="bg-white border border-slate-100 rounded-[20px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-white">Donor Transactions</h2>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Showing last 7 days only</p>
+                        <h2 className="text-xl font-bold text-[#111827]">Donor Transactions</h2>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Showing last 7 days only</p>
                     </div>
                     <div className="flex flex-wrap gap-4 items-center">
                         <div className="relative md:w-64">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input 
                                 type="text" 
                                 placeholder="Search donors..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-black border border-slate-800 rounded-xl py-2 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-11 pr-4 text-sm text-[#111827] focus:outline-none focus:border-[#16A34A]/50"
                             />
                         </div>
-                        <div className="flex bg-black border border-slate-800 rounded-xl p-1 gap-1">
+                        <div className="flex bg-slate-50 border border-slate-200 rounded-xl p-1 gap-1">
                             {(['pending', 'verified', 'declined', 'all'] as const).map(s => (
                                 <button
                                     key={s}
                                     onClick={() => setStatusFilter(s)}
                                     className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                                        statusFilter === s ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'
+                                        statusFilter === s ? 'bg-[#16A34A] text-white shadow-md shadow-green-100' : 'text-slate-500'
                                     }`}
                                 >
                                     {s}
@@ -342,8 +402,8 @@ export default function DonationsPage() {
                     <AnimatePresence mode="popLayout">
                         {filteredDonations.length === 0 ? (
                             <div className="col-span-full py-12 text-center">
-                                <Calendar className="w-12 h-12 text-slate-800 mx-auto mb-4" />
-                                <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">No active donations in the last 7 days.</p>
+                                <Calendar className="w-12 h-12 text-slate-100 mx-auto mb-4" />
+                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No active donations in the last 7 days.</p>
                             </div>
                         ) : (
                             filteredDonations.map((d) => (
@@ -353,22 +413,22 @@ export default function DonationsPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     onClick={() => setSelectedDonation(d)}
-                                    className={`p-6 rounded-3xl border ${d.status === 'pending' ? 'bg-amber-500/5 border-amber-500/20' : 'bg-slate-900/50 border-slate-800'} hover:border-indigo-500/40 transition-all cursor-pointer group`}
+                                    className={`p-6 rounded-[20px] border ${d.status === 'pending' ? 'bg-amber-50 border-amber-100' : 'bg-white border-slate-100'} hover:border-[#16A34A]/40 hover:shadow-xl hover:shadow-green-50/50 transition-all cursor-pointer group shadow-[0_4px_20px_rgb(0,0,0,0.03)]`}
                                 >
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className={`p-2 rounded-xl ${d.status === 'verified' ? 'bg-emerald-500/10 text-emerald-500' : d.status === 'pending' ? 'bg-amber-500/10 text-amber-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                        <div className={`p-2 rounded-xl ${d.status === 'verified' ? 'bg-green-50 text-[#16A34A]' : d.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
                                             <Receipt className="w-5 h-5" />
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-500 uppercase">{new Date(d.createdAt).toLocaleDateString()}</span>
+                                        <span className="text-[10px] font-black text-slate-400 uppercase">{new Date(d.createdAt).toLocaleDateString()}</span>
                                     </div>
-                                    <h3 className="text-lg font-black text-white group-hover:text-indigo-400 transition-colors">{d.fullName}</h3>
-                                    <p className="text-2xl font-black text-white mt-2 leading-none">Rs. {parseFloat(d.amount).toLocaleString()}</p>
+                                    <h3 className="text-lg font-black text-[#111827] group-hover:text-[#16A34A] transition-colors">{d.fullName}</h3>
+                                    <p className="text-2xl font-black text-[#111827] mt-2 leading-none">Rs. {parseFloat(d.amount).toLocaleString()}</p>
                                     <div className="mt-6 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                                            <div className={`w-2 h-2 rounded-full ${d.status === 'pending' ? 'bg-amber-500' : d.status === 'verified' ? 'bg-[#16A34A]' : 'bg-rose-500'}`}></div>
                                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{d.status}</span>
                                         </div>
-                                        <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-white transition-all transform group-hover:translate-x-1" />
+                                        <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-[#16A34A] transition-all transform group-hover:translate-x-1" />
                                     </div>
                                 </motion.div>
                             ))
@@ -384,32 +444,32 @@ export default function DonationsPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm shadow-2xl"
+                        className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/20 backdrop-blur-md"
                         onClick={() => !actionLoading && setSelectedDonation(null)}
                     >
                         <motion.div 
                             initial={{ scale: 0.9, y: 30 }}
                             animate={{ scale: 1, y: 0 }}
-                            className="bg-[#050505] border border-slate-800 rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-hidden overflow-y-auto no-scrollbar shadow-2xl flex flex-col md:flex-row relative"
+                            className="bg-white border border-slate-100 rounded-[20px] w-full max-w-5xl max-h-[90vh] overflow-hidden overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.1)] flex flex-col md:flex-row relative"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Receipt Preview */}
-                            <div className="md:w-5/12 bg-black/50 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-800">
-                                <div className="w-full aspect-[3/4] rounded-[2rem] border-2 border-dashed border-slate-800 overflow-hidden relative group">
+                            <div className="md:w-5/12 bg-slate-50 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-100">
+                                <div className="w-full aspect-[3/4] rounded-[20px] border-2 border-dashed border-slate-200 bg-white overflow-hidden relative group">
                                     {selectedDonation.paymentScreenshot ? (
                                         <img src={selectedDonation.paymentScreenshot} alt="Receipt" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-slate-900/50">
-                                            <Receipt className="w-12 h-12 text-slate-700 mb-4" />
-                                            <p className="text-slate-500 text-xs font-black uppercase text-center">No Photo Receipt</p>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-slate-50/50">
+                                            <Receipt className="w-12 h-12 text-slate-200 mb-4" />
+                                            <p className="text-slate-400 text-xs font-black uppercase text-center">No Photo Receipt</p>
                                         </div>
                                     )}
                                 </div>
-                                <div className="mt-8 p-6 bg-indigo-500/5 rounded-3xl border border-indigo-500/10 w-full">
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Transmitted Amount</p>
+                                <div className="mt-8 p-6 bg-[#F0FDF4] rounded-[15px] border border-green-100 w-full">
+                                    <p className="text-[10px] font-black text-[#16A34A] uppercase tracking-widest mb-2">Transmitted Amount</p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-sm font-bold text-slate-500">Rs.</span>
-                                        <span className="text-3xl font-black text-white">{parseFloat(isEditing && editForm.amount ? editForm.amount : selectedDonation.amount).toLocaleString()}</span>
+                                        <span className="text-sm font-bold text-slate-400">Rs.</span>
+                                        <span className="text-3xl font-black text-[#111827]">{parseFloat(isEditing && editForm.amount ? editForm.amount : selectedDonation.amount).toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -418,19 +478,19 @@ export default function DonationsPage() {
                             <div className="md:w-7/12 p-10 flex flex-col">
                                 <div className="flex items-start justify-between mb-10">
                                     <div>
-                                        <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                                        <h2 className="text-3xl font-black text-[#111827] tracking-tight flex items-center gap-3">
                                             Audit Request
-                                            {isEditing && <span className="bg-amber-500/20 text-amber-500 text-[10px] px-2 py-1 rounded-full uppercase tracking-widest">Editing</span>}
+                                            {isEditing && <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded-full uppercase tracking-widest">Editing</span>}
                                         </h2>
                                         <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-1">Status: {selectedDonation.status}</p>
                                     </div>
                                     <div className="flex gap-3">
                                         {!isEditing && (
-                                            <button onClick={() => { setEditForm({...selectedDonation}); setIsEditing(true); }} className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white transition-all" title="Edit Donor Details">
+                                            <button onClick={() => { setEditForm({...selectedDonation}); setIsEditing(true); }} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#16A34A] transition-all" title="Edit Donor Details">
                                                 <Edit3 className="w-5 h-5" />
                                             </button>
                                         )}
-                                        <button onClick={() => { setSelectedDonation(null); setIsEditing(false); }} className="p-3 rounded-2xl bg-white/5 text-slate-400 hover:text-white transition-all">
+                                        <button onClick={() => { setSelectedDonation(null); setIsEditing(false); }} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-red-500 transition-all">
                                             <XCircle className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -445,12 +505,12 @@ export default function DonationsPage() {
                                     </GridSection>
 
                                     <GridSection title="Payment Details" icon={CreditCard}>
-                                        <div className="col-span-2 p-5 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl">
-                                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1.5">TXN REFERENCE ID</p>
+                                        <div className="col-span-2 p-5 bg-green-50 border border-green-100 rounded-[15px]">
+                                            <p className="text-[10px] font-black text-[#16A34A] uppercase tracking-widest mb-1.5">TXN REFERENCE ID</p>
                                             {isEditing ? (
-                                                <input value={editForm.transactionId} onChange={(e) => setEditForm({...editForm, transactionId: e.target.value})} className="w-full bg-black border border-indigo-500/30 rounded-lg p-2 text-white font-mono" />
+                                                <input value={editForm.transactionId} onChange={(e) => setEditForm({...editForm, transactionId: e.target.value})} className="w-full bg-white border border-green-100 rounded-lg p-2 text-[#111827] font-mono" />
                                             ) : (
-                                                <p className="text-xl font-bold font-mono text-white tracking-widest break-all">{selectedDonation.transactionId}</p>
+                                                <p className="text-xl font-bold font-mono text-[#111827] tracking-widest break-all">{selectedDonation.transactionId}</p>
                                             )}
                                         </div>
                                         <GridItem label="Method" value={selectedDonation.paymentMethod || "Other"} isEditing={isEditing} editedValue={editForm.paymentMethod} onEdit={(v: string) => setEditForm({...editForm, paymentMethod: v})} />
@@ -459,10 +519,10 @@ export default function DonationsPage() {
                                     </GridSection>
                                 </div>
 
-                                <div className="mt-10 pt-10 border-t border-slate-800 flex items-center justify-between gap-4">
+                                <div className="mt-10 pt-10 border-t border-slate-100 flex items-center justify-between gap-4">
                                     {isEditing ? (
                                         <div className="flex gap-4 w-full">
-                                            <button onClick={() => setIsEditing(false)} className="flex-1 py-4 font-black text-slate-500 hover:text-white transition-all uppercase text-xs tracking-widest">Discard</button>
+                                            <button onClick={() => setIsEditing(false)} className="flex-1 py-4 font-black text-slate-400 hover:text-[#111827] transition-all uppercase text-xs tracking-widest">Discard</button>
                                             <button 
                                                 onClick={async () => {
                                                     setActionLoading(true);
@@ -473,37 +533,48 @@ export default function DonationsPage() {
                                                             body: JSON.stringify({ ...editForm })
                                                         });
                                                         if (res.ok) {
-                                                            alert("Record updated!");
-                                                            setSelectedDonation({...selectedDonation, ...editForm});
+                                                            showToast("Record updated successfully!", "success");
+                                                            setSelectedDonation({...selectedDonation, ...editForm as any});
                                                             setIsEditing(false);
                                                             fetchData();
                                                         }
                                                     } finally { setActionLoading(false); }
                                                 }}
-                                                className="flex-[2] py-4 font-black bg-indigo-600 text-white rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all"
+                                                className="flex-[2] py-4 font-black bg-[#16A34A] text-white rounded-[15px] flex items-center justify-center gap-2 hover:bg-[#15803D] transition-all"
                                             >
                                                 <Save className="w-4 h-4" />
                                                 Update Donor Information
                                             </button>
                                         </div>
                                     ) : (
-                                        selectedDonation.status === 'pending' ? (
-                                            <>
-                                                <button onClick={() => handleUpdateStatus(selectedDonation._id, 'declined')} className="flex-1 py-4 font-black border border-rose-500/30 text-rose-500 rounded-2xl hover:bg-rose-500/5 transition-all text-xs uppercase tracking-widest">Decline Entry</button>
-                                                <button 
-                                                    onClick={() => handleUpdateStatus(selectedDonation._id, 'verified')}
-                                                    className="flex-[2] py-4 font-black bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                                >
-                                                    <ShieldCheck className="w-5 h-5" />
-                                                    Finalize & Approve Donation
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <div className="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-500 font-black tracking-tight flex items-center justify-center gap-3">
-                                                <AlertCircle className="w-4 h-4 font-black" />
-                                                TRANSACTION HAS BEEN {selectedDonation.status.toUpperCase()}
+                                        <div className="flex flex-col w-full gap-4">
+                                            <div className="flex items-center gap-4 w-full">
+                                                {selectedDonation.status === 'pending' ? (
+                                                    <>
+                                                        <button onClick={() => handleUpdateStatus(selectedDonation._id, 'declined')} className="flex-1 py-4 font-black border border-rose-100 text-rose-600 rounded-[15px] hover:bg-rose-50 transition-all text-xs uppercase tracking-widest">Decline Entry</button>
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(selectedDonation._id, 'verified')}
+                                                            className="flex-[2] py-4 font-black bg-[#16A34A] text-white rounded-[15px] flex items-center justify-center gap-2 shadow-xl shadow-green-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                        >
+                                                            <ShieldCheck className="w-5 h-5" />
+                                                            Finalize & Approve Donation
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <div className="w-full p-4 rounded-[15px] bg-slate-50 border border-slate-100 text-center text-slate-500 font-black tracking-tight flex items-center justify-center gap-3">
+                                                        <AlertCircle className="w-4 h-4 font-black text-[#16A34A]" />
+                                                        TRANSACTION HAS BEEN {selectedDonation.status.toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )
+                                            <button 
+                                                onClick={() => handleDelete(selectedDonation._id)}
+                                                className="w-full py-3 text-xs font-black uppercase text-rose-400 hover:text-rose-600 border border-rose-50 hover:bg-rose-50 rounded-xl transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                                Permanently Remove Document
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -517,11 +588,11 @@ export default function DonationsPage() {
 
 function StatCard({ label, value, icon: Icon, color, bgColor }: any) {
     return (
-        <div className="bg-[#0a0a0a] border border-slate-800 p-6 rounded-[2rem] flex flex-col gap-1 relative overflow-hidden group">
-            <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity`}>
+        <div className={`bg-white border border-slate-100 p-6 rounded-[20px] flex flex-col gap-1 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-md transition-shadow`}>
+            <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity`}>
                 <Icon className={`w-16 h-16 ${color}`} />
             </div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
             <p className={`text-2xl font-black ${color} tracking-tight`}>{value}</p>
         </div>
     );
@@ -531,8 +602,8 @@ function GridSection({ title, icon: Icon, children }: any) {
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
-                <Icon className="w-4 h-4 text-indigo-500" />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</span>
+                <Icon className="w-4 h-4 text-[#16A34A]" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</span>
             </div>
             <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 {children}
@@ -544,15 +615,15 @@ function GridSection({ title, icon: Icon, children }: any) {
 function GridItem({ label, value, isEditing, editedValue, onEdit }: any) {
     return (
         <div>
-            <p className="text-[10px] font-black text-slate-600 uppercase mb-1.5">{label}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase mb-1.5">{label}</p>
             {isEditing ? (
                 <input 
                     value={editedValue} 
                     onChange={(e) => onEdit(e.target.value)}
-                    className="w-full bg-black border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]/50"
                 />
             ) : (
-                <p className="text-sm font-bold text-white truncate">{value || "N/A"}</p>
+                <p className="text-sm font-bold text-[#111827] truncate">{value || "N/A"}</p>
             )}
         </div>
     );

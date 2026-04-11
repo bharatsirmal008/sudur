@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "./context/ToastContext";
 import { CheckCircle2, Loader2, ArrowRight, ChevronDown, Download } from "lucide-react";
 import "flag-icons/css/flag-icons.min.css";
 import { jsPDF } from "jspdf";
 
 export default function DonatePage() {
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -47,7 +49,7 @@ export default function DonatePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.declaration) {
-            alert("Please confirm the declaration before submitting.");
+            showToast("Please confirm the declaration before submitting.", "warning");
             return;
         }
         setSubmitting(true);
@@ -76,7 +78,7 @@ export default function DonatePage() {
                 throw new Error("Failed to submit");
             }
         } catch (error) {
-            alert("Submission failed. Please try again or contact support.");
+            showToast("Submission failed. Please try again or contact support.", "error");
         } finally {
             setSubmitting(false);
         }

@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AuthProvider from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { ToastProvider } from "./context/ToastContext";
 import { Outfit, Space_Grotesk } from "next/font/google";
 
 const outfit = Outfit({
@@ -54,9 +55,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased min-h-screen flex flex-col bg-black text-gray-200 transition-colors duration-300 font-sans">
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>
-            <Navbar />
-            <div className="flex-1">{children}</div>
-            <Footer />
+            <ToastProvider>
+              <Navbar />
+              <div className="flex-1">{children}</div>
+              <Footer />
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useToast } from "./context/ToastContext";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 export default function VolunteerApplicationPage() {
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         name: "",
         permanentAddress: "",
@@ -28,7 +30,7 @@ export default function VolunteerApplicationPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.declaration) {
-            alert("Please certify the declaration before submitting.");
+            showToast("Please certify the declaration before submitting.", "warning");
             return;
         }
         setSubmitting(true);
@@ -45,7 +47,7 @@ export default function VolunteerApplicationPage() {
             setSubmitted(true);
         } catch (error) {
             console.error("Submission failed:", error);
-            alert("Something went wrong. Please try again later.");
+            showToast("Something went wrong. Please try again later.", "error");
         } finally {
             setSubmitting(false);
         }

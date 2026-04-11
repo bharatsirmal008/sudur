@@ -585,6 +585,27 @@ app.patch('/api/donations/:id/status', async (req, res) => {
     }
 });
 
+app.delete('/api/donations/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.collection("donations").deleteOne({ _id: new ObjectId(id) });
+        res.json({ message: "Donation deleted successfully" });
+    } catch (e) {
+        console.error("Donation delete error:", e);
+        res.status(500).json({ message: "Failed to delete donation" });
+    }
+});
+
+app.delete('/api/donations', async (req, res) => {
+    try {
+        await db.collection("donations").deleteMany({});
+        res.json({ message: "All donation records cleared successfully" });
+    } catch (e) {
+        console.error("Bulk donation delete error:", e);
+        res.status(500).json({ message: "Failed to clear donations" });
+    }
+});
+
 // Contact
 app.post('/api/contact', async (req, res) => {
     try {
