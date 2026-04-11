@@ -81,12 +81,23 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     app.listen(PORT, () => console.log(`Local server running on port ${PORT}`));
 }
 
-// Email Transporter
+// Email Transporter Config
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
+    }
+});
+
+// Verify SMTP connection on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("[MAIL] SMTP Connection Error. Check GMAIL_USER/PASS or App Password:", error);
+    } else {
+        console.log("[MAIL] SMTP Server is ready to deliver notifications");
     }
 });
 
@@ -459,9 +470,20 @@ app.put('/api/volunteer-applications/:id', async (req, res) => {
 app.patch('/api/volunteer-applications/:id/approve', async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`[ADMIN] Approving volunteer application: ${id}`);
+        
         const appData = await db.collection("volunteer_applications").findOne({ _id: new ObjectId(id) });
         
-        if (!appData) return res.status(404).json({ message: "Application not found" });
+        if (!appData) {
+            console.error(`[ADMIN] Application not found for ID: ${id}`);
+            return res.status(404).json({ message: "Application not found" });
+        }
+
+        const volunteerEmail = appData.email || appData.Email;
+        if (!volunteerEmail) {
+            console.error(`[ADMIN] No email found for application: ${id}`);
+            return res.status(400).json({ message: "Cannot approve: Application missing email address" });
+        }
 
         // 1. Update Application Status
         await db.collection("volunteer_applications").updateOne(
@@ -472,12 +494,12 @@ app.patch('/api/volunteer-applications/:id/approve', async (req, res) => {
         // 2. Add to Volunteers (Team) Collection
         const newVolunteer = {
             name: appData.name,
-            role: "Volunteer", // Default role
+            role: "Volunteer",
             location: appData.temporaryAddress?.split(',')?.pop()?.trim() || "Local",
-            image: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png", // Default placeholder
+            image: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png",
             skills: appData.skills,
             contact: appData.contact,
-            email: appData.email,
+            email: volunteerEmail,
             socials: {},
             isVisible: true,
             createdAt: new Date()
@@ -485,17 +507,36 @@ app.patch('/api/volunteer-applications/:id/approve', async (req, res) => {
         await db.collection("volunteers").insertOne(newVolunteer);
 
         // 3. Send Success Email
+        console.log(`[MAIL] Attempting to send approval email to: ${volunteerEmail}`);
         await sendEmail(
-            appData.email,
+            volunteerEmail,
             "Welcome to YAOP - Volunteer Application Approved!",
             `Hi ${appData.name},\n\nCongratulations! Your application to volunteer with Youth Association of Purbichauki has been approved. Welcome to the team!\n\nWe will reach out soon with next steps.`,
-            `<h2>Welcome to the Team, ${appData.name}!</h2><p>Congratulations! Your application to volunteer with <b>Youth Association of Purbichauki (YAOP)</b> has been approved.</p><p>We are excited to have you on board. Our team will contact you shortly with further details and onboarding materials.</p><br/><p>Best regards,<br/>The YAOP Team</p>`
+            `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111827;">
+                <h2 style="color: #16a34a;">Welcome to the Team, ${appData.name}!</h2>
+                <p>Congratulations! Your application to volunteer with <b>Youth Association of Purbichauki (YAOP)</b> has been approved.</p>
+                <p>We are excited to have you on board. Our team will contact you shortly with further details and onboarding materials.</p>
+                <div style="margin-top: 30px; padding: 20px; background-color: #f0fdf4; border-radius: 12px; border: 1px solid #dcfce7;">
+                    <p style="margin: 0; font-weight: bold; color: #15803d;">Your next steps:</p>
+                    <ul style="margin-top: 10px; color: #166534;">
+                        <li>Wait for our coordinator to reach out</li>
+                        <li>Check your dashboard for upcoming events</li>
+                        <li>Spread the word about our mission!</li>
+                    </ul>
+                </div>
+                <br/>
+                <p>Best regards,<br/><b>The YAOP Administrative Team</b></p>
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;"/>
+                <p style="font-size: 12px; color: #6b7280;">Youth Association of Purbichauki - Connecting Hearts, Building Futures.</p>
+            </div>
+            `
         );
 
-        res.json({ message: "Application approved and volunteer added" });
+        res.json({ message: "Application approved successfully, volunteer added to team, and notification email sent." });
     } catch (e) {
-        console.error("Approval error:", e);
-        res.status(500).json({ message: "Approval failed" });
+        console.error("[ADMIN] Approval error:", e);
+        res.status(500).json({ message: "Approval failed", error: e.message });
     }
 });
 
@@ -503,44 +544,65 @@ app.patch('/api/volunteer-applications/:id/reject', async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
+        console.log(`[ADMIN] Rejecting volunteer application: ${id}`);
+        
         const appData = await db.collection("volunteer_applications").findOne({ _id: new ObjectId(id) });
 
-        if (!appData) return res.status(404).json({ message: "Application not found" });
+        if (!appData) {
+            console.error(`[ADMIN] Application not found for rejection: ${id}`);
+            return res.status(404).json({ message: "Application not found" });
+        }
+
+        const volunteerEmail = appData.email || appData.Email;
+        if (!volunteerEmail) {
+            console.error(`[ADMIN] No email found for rejection application: ${id}`);
+            return res.status(400).json({ message: "Application missing email address" });
+        }
 
         await db.collection("volunteer_applications").updateOne(
             { _id: new ObjectId(id) },
             { $set: { status: 'rejected', rejectionReason: reason, processedAt: new Date() } }
         );
 
-        // Send Professional Rejection Email with Suggestions
+        // Send Professional Rejection Email
+        console.log(`[MAIL] Attempting to send rejection email to: ${volunteerEmail}`);
         await sendEmail(
-            appData.email,
+            volunteerEmail,
             "Status Update: Volunteer Application - Youth Association of Purbichauki",
-            `Hi ${appData.name},\n\nThank you for your interest in volunteering with YAOP. After carefully reviewing your application, we have some feedback and suggestions for you.\n\nSuggestions: ${reason || "Keep improving your skills and apply for future events!"}\n\nWe appreciate your spirit of service.`,
+            `Hi ${appData.name},\n\nThank you for your interest in volunteering with YAOP. We have reviewed your application and provided feedback.\n\nFeedback: ${reason}`,
             `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f1f5f9; rounded-lg: 16px;">
-                <h2 style="color: #0f172a; font-weight: 800; tracking-tight: -0.025em; margin-bottom: 24px;">Application Update</h2>
-                <p style="color: #475569; line-height: 1.6;">Hi <b>${appData.name}</b>,</p>
-                <p style="color: #475569; line-height: 1.6;">Thank you so much for taking the time to apply for a volunteer position with our association. We truly value your passion for community service.</p>
-                
-                <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 30px 0; border-radius: 8px;">
-                    <h4 style="color: #991b1b; margin-top: 0; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em;">Suggestions from our Team</h4>
-                    <p style="color: #b91c1c; margin: 0; font-size: 15px; line-height: 1.5; font-style: italic;">
-                        "${reason || "We encourage you to continue developing your local leadership skills and re-apply for our upcoming specialized community events."}"
-                    </p>
-                </div>
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #334155; line-height: 1.6;">
+                <div style="background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; padding: 40px;">
+                    <h2 style="color: #0f172a; font-weight: 800; margin-bottom: 24px; text-align: center;">Application Update</h2>
+                    <p>Hi <b>${appData.name}</b>,</p>
+                    <p>Thank you for your interest in joining the Youth Association of Purbichauki (YAOP). Our team has carefully reviewed your profile.</p>
+                    
+                    <div style="background-color: #fff1f2; border-left: 4px solid #f43f5e; padding: 24px; margin: 32px 0; border-radius: 8px;">
+                        <span style="display: block; font-size: 11px; font-weight: 800; color: #be123e; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Message from our Coordinator</span>
+                        <p style="margin: 0; color: #9f1239; font-style: italic;">
+                            "${reason || "While we cannot move forward with your profile at this time, we appreciate your interest. Keep improving your community impact and reach out to us again in the future!"}"
+                        </p>
+                    </div>
 
-                <p style="color: #475569; line-height: 1.6;">While we cannot proceed with your profile for this specific role right now, we encourage you to stay connected through our social media and workshops.</p>
-                <p style="color: #475569; line-height: 1.6;">We wish you the very best in all your future endeavors.</p>
-                <br/>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-                <p style="color: #64748b; font-size: 13px;">Best regards,<br/><b>Administrative Team</b><br/>Youth Association of Purbichauki (YAOP)</p>
+                    <p>While we are unable to accept your application for this specific period, we encourage you to stay active in our community programs and follow our updates on social media.</p>
+                    <p>We wish you the very best in your future endeavors.</p>
+                    
+                    <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e2e8f0; font-size: 13px;">
+                        <p style="margin: 0;"><b>Best regards,</b></p>
+                        <p style="margin: 4px 0 0 0; color: #64748b;">The Administrative Team</p>
+                        <p style="margin: 0; font-weight: bold; color: #1e293b;">Youth Association of Purbichauki (YAOP)</p>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 24px;">This is an automated notification from our administrative portal.</p>
             </div>
             `
         );
 
-        res.json({ message: "Application rejected and user notified" });
-    } catch (e) { res.status(500).json({ message: "Rejection failed" }); }
+        res.json({ message: "Application rejected successfully and user notified." });
+    } catch (e) { 
+        console.error("[ADMIN] Rejection error:", e);
+        res.status(500).json({ message: "Rejection failed", error: e.message }); 
+    }
 });
 
 // Donations Workflow
