@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useToast } from "./context/ToastContext";
+import { useToast } from "../context/ToastContext";
 import { CheckCircle2, Loader2, ArrowRight, ChevronDown, Download } from "lucide-react";
 import "flag-icons/css/flag-icons.min.css";
 import { jsPDF } from "jspdf";
