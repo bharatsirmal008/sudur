@@ -28,11 +28,6 @@ export default function Gallery() {
 
     return (
         <section className="relative w-full bg-slate-50 py-28 overflow-hidden">
-            <style jsx>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-            `}</style>
             {/* SVG Wire Background */}
             <div className="absolute top-1/2 left-0 w-full h-[300px] -translate-y-[60%] pointer-events-none">
                 <svg width="100%" height="100%" viewBox="0 0 1200 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -46,7 +41,7 @@ export default function Gallery() {
                     <p className="text-slate-500 font-medium max-w-2xl mx-auto">A glimpse into our impactful moments.</p>
                 </div>
 
-                <div className="flex flex-nowrap justify-start md:justify-center items-center gap-10 md:gap-16 pb-16 pt-10 overflow-x-auto snap-x snap-mandatory px-8 md:px-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 pb-16 pt-10">
                     {images.map((img, i) => {
                         // Alternate rotations and Y translations to simulate hanging on a curved wire
                         const rotations = [-8, 6, -5, 9, -4, 7];
@@ -66,7 +61,7 @@ export default function Gallery() {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: i * 0.1 }}
                                 onClick={() => setSelectedImage(img)}
-                                className="relative bg-white p-3 pb-10 md:p-4 md:pb-14 shadow-2xl hover:scale-105 transition-transform duration-300 w-56 h-64 md:w-72 md:h-80 flex-shrink-0 cursor-pointer group snap-center"
+                                className="relative bg-white p-3 pb-10 md:p-4 md:pb-14 shadow-2xl hover:scale-105 transition-transform duration-300 w-56 h-64 md:w-72 md:h-80 flex-shrink-0 cursor-pointer group"
                             >
                                 {/* Binder Clip Graphic */}
                                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 flex flex-col items-center z-20">
