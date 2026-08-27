@@ -27,19 +27,25 @@ export default function DonatePage() {
     const [submitted, setSubmitted] = useState(false);
     const [isCountryOpen, setIsCountryOpen] = useState(false);
     const [events, setEvents] = useState<any[]>([]);
+    const [globalSettings, setGlobalSettings] = useState<any>(null);
 
-    // Fetch events for dynamic purposes and QR codes
+    // Fetch events and settings
     useEffect(() => {
-        const fetchEvents = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch("/api/events");
-                const data = await res.json();
-                setEvents(data);
+                const [eventsRes, settingsRes] = await Promise.all([
+                    fetch("/api/events"),
+                    fetch("/api/settings")
+                ]);
+                const eventsData = await eventsRes.json();
+                const settingsData = await settingsRes.json();
+                setEvents(eventsData);
+                setGlobalSettings(settingsData);
             } catch (err) {
-                console.error("Failed to fetch events", err);
+                console.error("Failed to fetch data", err);
             }
         };
-        fetchEvents();
+        fetchData();
     }, []);
 
     const countries = [
@@ -51,13 +57,15 @@ export default function DonatePage() {
         { name: "UAE", code: "+971", iso: "ae" },
     ];
 
-    const defaultPurposes = [
-        "Education Support",
-        "Health & Medical Aid",
-        "Community Development",
-        "Emergency Relief",
-        "General Donation"
-    ];
+    const defaultPurposes = globalSettings?.donationPurposes?.length 
+        ? globalSettings.donationPurposes 
+        : [
+            "Education Support",
+            "Health & Medical Aid",
+            "Community Development",
+            "Emergency Relief",
+            "General Donation"
+        ];
 
     // Combine default purposes with event titles
     const purposes = [...defaultPurposes, ...events.map(e => e.title)];
@@ -204,7 +212,12 @@ export default function DonatePage() {
     }
 
     const selectedEvent = events.find(e => e.title === formData.purpose);
-    let dynamicQrSrc = formData.paymentMethod === "Bank Transfer" ? "/Bank_QR.jpeg" : "/payment_qr.jpeg";
+    
+    const defaultBankQr = globalSettings?.bankQrCode || "/Bank_QR.jpeg";
+    const defaultEsewaQr = globalSettings?.esewaQrCode || "/payment_qr.jpeg";
+
+    let dynamicQrSrc = formData.paymentMethod === "Bank Transfer" ? defaultBankQr : defaultEsewaQr;
+    
     if (selectedEvent && selectedEvent.qrCode) {
         dynamicQrSrc = selectedEvent.qrCode;
     }
@@ -461,7 +474,9 @@ export default function DonatePage() {
                                                 <div className="absolute inset-0 bg-[#2ea0c5]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
                                             </div>
                                             <p className="mt-6 text-gray-500 font-bold text-center">
-                                                {formData.paymentMethod === "Bank Transfer" ? "Youth Association Of Purbichauki" : "eSewa ID: 98XXXXXXX"}
+                                                {formData.paymentMethod === "Bank Transfer" 
+                                                    ? (globalSettings?.bankDetails || "Youth Association Of Purbichauki")
+                                                    : `eSewa ID: ${globalSettings?.esewaId || "98XXXXXXX"}`}
                                             </p>
                                             <p className="mt-2 text-gray-400 text-xs font-medium text-center max-w-[250px]">
                                                 Please scan the QR code above and upload the screenshot below for verification.

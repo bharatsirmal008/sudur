@@ -9,6 +9,11 @@ interface SiteSettings {
     orgName: string;
     adminEmail: string;
     logoUrl: string;
+    esewaId?: string;
+    esewaQrCode?: string;
+    bankDetails?: string;
+    bankQrCode?: string;
+    donationPurposes?: string[];
 }
 
 export default function AdminSettingsPage() {
@@ -16,7 +21,12 @@ export default function AdminSettingsPage() {
         adminName: '',
         orgName: '',
         adminEmail: '',
-        logoUrl: ''
+        logoUrl: '',
+        esewaId: '',
+        esewaQrCode: '',
+        bankDetails: '',
+        bankQrCode: '',
+        donationPurposes: []
     });
     
     const [loading, setLoading] = useState(true);
@@ -32,7 +42,12 @@ export default function AdminSettingsPage() {
                         adminName: data.adminName || '',
                         orgName: data.orgName || '',
                         adminEmail: data.adminEmail || '',
-                        logoUrl: data.logoUrl || ''
+                        logoUrl: data.logoUrl || '',
+                        esewaId: data.esewaId || '',
+                        esewaQrCode: data.esewaQrCode || '',
+                        bankDetails: data.bankDetails || '',
+                        bankQrCode: data.bankQrCode || '',
+                        donationPurposes: data.donationPurposes || []
                     });
                 }
             })
@@ -163,6 +178,67 @@ export default function AdminSettingsPage() {
                             </div>
                         </label>
                     </div>
+                </div>
+
+                {/* Donation Configuration */}
+                <div className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm">
+                    <h2 className="text-lg font-bold text-[#111827] mb-6 flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5 text-[#16A34A]" /> Donation Configuration
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-6">
+                        <label className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">eSewa ID</span>
+                            <input
+                                type="text"
+                                value={settings.esewaId}
+                                onChange={(e) => setSettings({ ...settings, esewaId: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                                placeholder="e.g. 98XXXXXXX"
+                            />
+                        </label>
+                        <label className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">eSewa QR Code URL</span>
+                            <input
+                                type="text"
+                                value={settings.esewaQrCode}
+                                onChange={(e) => setSettings({ ...settings, esewaQrCode: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                                placeholder="/payment_qr.jpeg"
+                            />
+                        </label>
+                        <label className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Bank Details</span>
+                            <input
+                                type="text"
+                                value={settings.bankDetails}
+                                onChange={(e) => setSettings({ ...settings, bankDetails: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                                placeholder="e.g. Youth Association Of Purbichauki"
+                            />
+                        </label>
+                        <label className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Bank QR Code URL</span>
+                            <input
+                                type="text"
+                                value={settings.bankQrCode}
+                                onChange={(e) => setSettings({ ...settings, bankQrCode: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                                placeholder="/Bank_QR.jpeg"
+                            />
+                        </label>
+                    </div>
+
+                    <label className="block">
+                        <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Donation Purposes (Comma Separated)</span>
+                        <textarea
+                            rows={3}
+                            value={settings.donationPurposes?.join(", ") || ""}
+                            onChange={(e) => setSettings({ ...settings, donationPurposes: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                            placeholder="Education Support, Health & Medical Aid, General Donation"
+                        />
+                    </label>
                 </div>
 
                 {message && (

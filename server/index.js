@@ -935,7 +935,12 @@ app.get('/api/settings', async (req, res) => {
                 adminName: 'Super Admin',
                 logoUrl: '',
                 orgName: 'Youth Association Of Purbichauki',
-                adminEmail: 'admin@yaop.org'
+                adminEmail: 'admin@yaop.org',
+                esewaId: '98XXXXXXX',
+                esewaQrCode: '/payment_qr.jpeg',
+                bankDetails: 'Youth Association Of Purbichauki',
+                bankQrCode: '/Bank_QR.jpeg',
+                donationPurposes: ['Education Support', 'Health & Medical Aid', 'Community Development', 'Emergency Relief', 'General Donation']
             };
             await db.collection("settings").insertOne(defaultSettings);
             return res.json(defaultSettings);
@@ -948,10 +953,14 @@ app.get('/api/settings', async (req, res) => {
 
 app.post('/api/settings', async (req, res) => {
     try {
-        const { adminName, logoUrl, orgName, adminEmail } = req.body;
+        const { adminName, logoUrl, orgName, adminEmail, esewaId, esewaQrCode, bankDetails, bankQrCode, donationPurposes } = req.body;
         await db.collection("settings").updateOne(
             { type: 'global' },
-            { $set: { adminName, logoUrl, orgName, adminEmail, updatedAt: new Date() } },
+            { $set: { 
+                adminName, logoUrl, orgName, adminEmail, 
+                esewaId, esewaQrCode, bankDetails, bankQrCode, donationPurposes,
+                updatedAt: new Date() 
+            } },
             { upsert: true }
         );
         res.json({ message: "Settings updated successfully" });
