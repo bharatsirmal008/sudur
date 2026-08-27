@@ -25,6 +25,8 @@ interface Event {
     feedbackLink?: string;
     otherInfo?: string;
     status?: 'scheduled' | 'live' | 'closed';
+    joinButtonText?: string;
+    donateButtonText?: string;
 }
 
 export default function AdminEventsPage() {
@@ -53,7 +55,9 @@ export default function AdminEventsPage() {
         terms: "",
         criteria: "",
         feedbackLink: "",
-        otherInfo: ""
+        otherInfo: "",
+        joinButtonText: "",
+        donateButtonText: ""
     });
 
     const fetchEvents = async () => {
@@ -467,9 +471,20 @@ export default function AdminEventsPage() {
                                                 </div>
                                             </div>
 
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Registration Link (CTA URL)</label>
+                                                    <input type="url" className="admin-input" value={formData.registrationLink || ""} onChange={(e) => setFormData({ ...formData, registrationLink: e.target.value })} placeholder="https://..." />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Registration Button Label</label>
+                                                    <input type="text" className="admin-input" value={formData.joinButtonText || ""} onChange={(e) => setFormData({ ...formData, joinButtonText: e.target.value })} placeholder="e.g. Live Now" />
+                                                </div>
+                                            </div>
+                                            
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Registration Link (CTA)</label>
-                                                <input type="url" className="admin-input" value={formData.registrationLink || ""} onChange={(e) => setFormData({ ...formData, registrationLink: e.target.value })} placeholder="https://..." />
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Donate Button Label</label>
+                                                <input type="text" className="admin-input" value={formData.donateButtonText || ""} onChange={(e) => setFormData({ ...formData, donateButtonText: e.target.value })} placeholder="e.g. Donate Now" />
                                             </div>
                                             
                                             <div className="pt-8">

@@ -61,18 +61,14 @@ export default function DonatePage() {
     // Handle both old string array and new object array {name, qrCode} for backward compatibility
     const defaultPurposes = globalSettings?.donationPurposes?.length 
         ? globalSettings.donationPurposes.map((p: any) => typeof p === 'string' ? p : p.name)
-        : [
-            "Education Support",
-            "Health & Medical Aid",
-            "Community Development",
-            "Emergency Relief",
-            "General Donation"
-        ];
+        : [];
 
     // Combine default purposes with event titles
     const purposes = [...defaultPurposes, ...events.map(e => e.title)];
 
-    const paymentMethods = ["eSewa", "Bank Transfer"];
+    const paymentMethods = [];
+    if (globalSettings?.esewaId || globalSettings?.esewaQrCode) paymentMethods.push("eSewa");
+    if (globalSettings?.bankDetails || globalSettings?.bankQrCode) paymentMethods.push("Bank Transfer");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -216,8 +212,8 @@ export default function DonatePage() {
     const selectedEvent = events.find(e => e.title === formData.purpose);
     const selectedPurpose = globalSettings?.donationPurposes?.find((p: any) => typeof p === 'object' && p.name === formData.purpose);
     
-    const defaultBankQr = globalSettings?.bankQrCode || "/Bank_QR.jpeg";
-    const defaultEsewaQr = globalSettings?.esewaQrCode || "/payment_qr.jpeg";
+    const defaultBankQr = globalSettings?.bankQrCode || "";
+    const defaultEsewaQr = globalSettings?.esewaQrCode || "";
 
     let dynamicQrSrc = formData.paymentMethod === "Bank Transfer" ? defaultBankQr : defaultEsewaQr;
     
@@ -457,6 +453,11 @@ export default function DonatePage() {
                                             </label>
                                         ))}
                                     </div>
+                                    {paymentMethods.length === 0 && (
+                                        <p className="text-amber-500 text-sm font-medium mt-3 bg-amber-50 p-4 rounded-xl border border-amber-100">
+                                            No payment methods are currently configured. Please contact the administrator or check back later.
+                                        </p>
+                                    )}
                                 </FormField>
 
                                 {/* Conditional QR Code Section */}
@@ -471,17 +472,23 @@ export default function DonatePage() {
                                         >
                                             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Scan to Pay via {formData.paymentMethod}</p>
                                             <div className="relative group p-4 bg-white rounded-2xl shadow-lg border border-gray-50 text-center">
-                                                <img
-                                                    src={dynamicQrSrc}
-                                                    alt={`${formData.paymentMethod} QR`}
-                                                    className="w-56 h-auto object-contain rounded-lg mx-auto"
-                                                />
+                                                {dynamicQrSrc ? (
+                                                    <img
+                                                        src={dynamicQrSrc}
+                                                        alt={`${formData.paymentMethod} QR`}
+                                                        className="w-56 h-auto object-contain rounded-lg mx-auto"
+                                                    />
+                                                ) : (
+                                                    <div className="w-56 h-56 mx-auto bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-200">
+                                                        <span className="text-gray-400 text-sm font-medium">No QR Code available</span>
+                                                    </div>
+                                                )}
                                                 <div className="absolute inset-0 bg-[#2ea0c5]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
                                             </div>
                                             <p className="mt-6 text-gray-500 font-bold text-center">
                                                 {formData.paymentMethod === "Bank Transfer" 
-                                                    ? (globalSettings?.bankDetails || "Youth Association Of Purbichauki")
-                                                    : `eSewa ID: ${globalSettings?.esewaId || "98XXXXXXX"}`}
+                                                    ? (globalSettings?.bankDetails || "Bank Transfer Details Not Configured")
+                                                    : `eSewa ID: ${globalSettings?.esewaId || "Not Configured"}`}
                                             </p>
                                             <p className="mt-2 text-gray-400 text-xs font-medium text-center max-w-[250px]">
                                                 Please scan the QR code above and upload the screenshot below for verification.

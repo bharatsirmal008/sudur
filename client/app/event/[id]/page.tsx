@@ -397,7 +397,7 @@ export default function EventDetailsPage() {
                                                     ? 'text-slate-400'
                                                     : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                     }`}>
-                                                    {!hasDate ? "Join Event" : (status === 'closed' ? "Closed Event" : status === 'live' ? "Join live Event" : "Join Us Now")}
+                                                    {event.joinButtonText || (!hasDate ? "Join Event" : (status === 'closed' ? "Closed Event" : status === 'live' ? "Join live Event" : "Join Us Now"))}
                                                 </span>
                                                 </div>
                                             </Link>

@@ -202,9 +202,9 @@ export default function Events() {
                                                             ? 'text-slate-400'
                                                             : 'bg-clip-text text-transparent bg-gradient-to-r from-[#ff5722] via-[#062a24] to-[#ff5722] bg-[length:200%_auto] bg-left hover:bg-right transition-all duration-700'
                                                             }`}>
-                                                            {!hasDate ? "Join Event" : (status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Us Now')}
+                                                            {event.joinButtonText || (!hasDate ? "Join Event" : (status === 'closed' ? 'Closed Event' : status === 'live' ? 'Live Now' : 'Join Us Now'))}
                                                         </span>
-                                                        {status === 'live' && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
+                                                        {status === 'live' && !event.joinButtonText && <span className="text-[10px] font-bold text-green-600/80 mt-0.5">Registration Open</span>}
                                                     </div>
                                                 </Link>
                                             );
@@ -223,7 +223,7 @@ export default function Events() {
                                             <div className="relative z-10 flex items-center justify-center gap-2">
                                                 <Heart className="w-4 h-4 text-emerald-600 group-hover/donate:scale-110 transition-transform" />
                                                 <span className="text-sm font-black tracking-tight whitespace-nowrap text-emerald-700">
-                                                    Donate Now
+                                                    {event.donateButtonText || "Donate Now"}
                                                 </span>
                                             </div>
                                         </Link>

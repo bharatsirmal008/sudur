@@ -428,7 +428,8 @@ app.post('/api/events', async (req, res) => {
         const { 
             title, description, shortDescription, date, location, image, qrCode,
             registrationLink, activities, impactPoints, organizer, 
-            startTime, endTime, terms, criteria, feedbackLink, otherInfo 
+            startTime, endTime, terms, criteria, feedbackLink, otherInfo,
+            joinButtonText, donateButtonText
         } = req.body;
         
         const slug = generateSlug(title);
@@ -451,6 +452,8 @@ app.post('/api/events', async (req, res) => {
             criteria,
             feedbackLink,
             otherInfo,
+            joinButtonText,
+            donateButtonText,
             status: req.body.status || 'scheduled',
             createdAt: new Date() 
         });
@@ -936,11 +939,11 @@ app.get('/api/settings', async (req, res) => {
                 logoUrl: '',
                 orgName: 'Youth Association Of Purbichauki',
                 adminEmail: 'admin@yaop.org',
-                esewaId: '98XXXXXXX',
-                esewaQrCode: '/payment_qr.jpeg',
-                bankDetails: 'Youth Association Of Purbichauki',
-                bankQrCode: '/Bank_QR.jpeg',
-                donationPurposes: ['Education Support', 'Health & Medical Aid', 'Community Development', 'Emergency Relief', 'General Donation']
+                esewaId: '',
+                esewaQrCode: '',
+                bankDetails: '',
+                bankQrCode: '',
+                donationPurposes: []
             };
             await db.collection("settings").insertOne(defaultSettings);
             return res.json(defaultSettings);
