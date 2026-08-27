@@ -26,6 +26,8 @@ interface Event {
     feedbackLink?: string;
     otherInfo?: string;
     status?: 'scheduled' | 'live' | 'closed';
+    joinButtonText?: string;
+    donateButtonText?: string;
 }
 
 export default function EventDetailsPage() {

@@ -19,6 +19,8 @@ interface Event {
     startTime?: string;
     endTime?: string;
     status?: 'scheduled' | 'live' | 'closed';
+    joinButtonText?: string;
+    donateButtonText?: string;
 }
 
 export default function Events() {
