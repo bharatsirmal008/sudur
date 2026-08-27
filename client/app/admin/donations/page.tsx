@@ -655,6 +655,7 @@ export default function DonationsPage() {
                         </motion.div>
                     </motion.div>
                 )}
+            </AnimatePresence>
             <AnimatePresence>
                 {isAddModalOpen && (
                     <motion.div
