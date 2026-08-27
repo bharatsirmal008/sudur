@@ -499,6 +499,29 @@ app.delete('/api/events', async (req, res) => {
     } catch (e) { res.status(500).json({ message: "Error" }); }
 });
 
+// Gallery
+app.get('/api/gallery', async (req, res) => {
+    try {
+        const images = await db.collection("gallery").find().sort({ createdAt: -1 }).toArray();
+        res.json(images);
+    } catch (e) { res.status(500).json({ message: "Error" }); }
+});
+
+app.post('/api/gallery', async (req, res) => {
+    try {
+        const { url, caption } = req.body;
+        const result = await db.collection("gallery").insertOne({ url, caption, createdAt: new Date() });
+        res.status(201).json({ message: "Added", id: result.insertedId });
+    } catch (e) { res.status(500).json({ message: "Error" }); }
+});
+
+app.delete('/api/gallery/:id', async (req, res) => {
+    try {
+        await db.collection("gallery").deleteOne({ _id: new ObjectId(req.params.id) });
+        res.json({ message: "Deleted" });
+    } catch (e) { res.status(500).json({ message: "Error" }); }
+});
+
 // Volunteers
 app.get('/api/volunteers', async (req, res) => {
     try {

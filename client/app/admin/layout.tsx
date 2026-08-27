@@ -13,7 +13,8 @@ import {
     ChevronRight,
     Menu,
     X,
-    Calendar
+    Calendar,
+    Image as ImageIcon
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -44,6 +45,7 @@ export default function AdminLayout({
         { name: "Volunteers", href: "/admin/volunteers", icon: Users },
         { name: "Donations", href: "/admin/donations", icon: Heart },
         { name: "Events", href: "/admin/events", icon: Calendar },
+        { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
 
