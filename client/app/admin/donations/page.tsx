@@ -48,6 +48,7 @@ interface Donation {
     paymentScreenshot?: string;
     paymentMethod?: string;
     purpose?: string;
+    role?: string;
     status: 'pending' | 'verified' | 'declined';
     createdAt: string;
     verifiedAt?: string;
@@ -708,6 +709,17 @@ export default function DonationsPage() {
                                         <div>
                                             <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Date Received</label>
                                             <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" value={addForm.createdAt?.substring(0,10) || new Date().toISOString().substring(0,10)} onChange={e => setAddForm({...addForm, createdAt: new Date(e.target.value).toISOString()})} />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Donation Purpose / Event</label>
+                                            <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. General Donation, Scholarship Fund" value={addForm.purpose || ""} onChange={e => setAddForm({...addForm, purpose: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Donor Role (Optional)</label>
+                                            <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Supporter, Platinum Sponsor" value={addForm.role || ""} onChange={e => setAddForm({...addForm, role: e.target.value})} />
                                         </div>
                                     </div>
                                     

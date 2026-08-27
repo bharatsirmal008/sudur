@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function DonorsPage() {
     const [donors, setDonors] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedPurpose, setSelectedPurpose] = useState<string>("All");
 
     useEffect(() => {
         const fetchDonors = async () => {
@@ -15,14 +16,8 @@ export default function DonorsPage() {
                 const res = await fetch("/api/donations");
                 if (res.ok) {
                     const data = await res.json();
-                    // Only show verified donations
                     const verified = data.filter((d: any) => d.status === 'verified');
-                    
-                    // Group by donor email or phone to aggregate total amount if they donated multiple times
-                    // Or just show individual donations. Showing individual is simpler and honors their message per donation.
-                    // But sorting by amount is good for "Top Donors".
                     const sorted = verified.sort((a: any, b: any) => parseFloat(b.amount) - parseFloat(a.amount));
-                    
                     setDonors(sorted);
                 }
             } catch (err) {
@@ -34,6 +29,12 @@ export default function DonorsPage() {
 
         fetchDonors();
     }, []);
+
+    const uniquePurposes = Array.from(new Set(donors.map(d => d.purpose).filter(Boolean)));
+
+    const filteredDonors = selectedPurpose === "All" 
+        ? donors 
+        : donors.filter(d => d.purpose === selectedPurpose);
 
     return (
         <main className="min-h-screen bg-slate-50 font-sans pb-20 pt-24 relative overflow-hidden">
@@ -58,27 +59,39 @@ export default function DonorsPage() {
                     <h1 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight mb-4">
                         Our Generous <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">Donors</span>
                     </h1>
-                    <p className="text-slate-500 font-medium max-w-xl mx-auto">
+                    <p className="text-slate-500 font-medium max-w-xl mx-auto mb-8">
                         Thank you to everyone who has contributed to our mission. Your support makes everything possible.
                     </p>
+
+                    {uniquePurposes.length > 0 && (
+                        <div className="flex justify-center">
+                            <select 
+                                value={selectedPurpose}
+                                onChange={(e) => setSelectedPurpose(e.target.value)}
+                                className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3 px-6 shadow-sm font-bold uppercase tracking-widest cursor-pointer"
+                            >
+                                <option value="All">All Purposes</option>
+                                {uniquePurposes.map((purpose: any, i) => (
+                                    <option key={i} value={purpose}>{purpose}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
 
                 {loading ? (
                     <div className="flex justify-center py-20">
                         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
                     </div>
-                ) : donors.length === 0 ? (
+                ) : filteredDonors.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-3xl shadow-xl border border-slate-100">
                         <Heart className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-slate-800">No donors found yet.</h3>
-                        <p className="text-slate-500 mt-2">Be the first to make a difference!</p>
-                        <Link href="/donate" className="inline-block mt-6 px-6 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors">
-                            Donate Now
-                        </Link>
+                        <h3 className="text-xl font-bold text-slate-800">No donors found for this purpose.</h3>
+                        <p className="text-slate-500 mt-2">Check back later or try another filter.</p>
                     </div>
                 ) : (
                     <div className="grid gap-4 relative z-10">
-                        {donors.map((donor, index) => (
+                        {filteredDonors.map((donor, index) => (
                             <motion.div
                                 key={donor._id || index}
                                 initial={{ opacity: 0, y: 10 }}
@@ -100,6 +113,7 @@ export default function DonorsPage() {
                                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                         </h3>
                                         <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">
+                                            {donor.role && <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{donor.role}</span>}
                                             {donor.address && <span className="flex items-center gap-1">{donor.address}</span>}
                                             {donor.createdAt && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(donor.createdAt).toLocaleDateString()}</span>}
                                         </div>
@@ -107,7 +121,9 @@ export default function DonorsPage() {
                                 </div>
                                 
                                 <div className="w-full md:w-auto text-left md:text-right bg-emerald-50 md:bg-transparent p-4 md:p-0 rounded-xl">
-                                    <p className="text-xs font-black uppercase text-emerald-600/60 tracking-widest mb-1">Donated</p>
+                                    <p className="text-xs font-black uppercase text-emerald-600/60 tracking-widest mb-1">
+                                        {donor.purpose ? `Donated For: ${donor.purpose}` : 'Donated'}
+                                    </p>
                                     <p className="text-2xl font-black text-emerald-600">Rs. {parseFloat(donor.amount).toLocaleString()}</p>
                                 </div>
                             </motion.div>
