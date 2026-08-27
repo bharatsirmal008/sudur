@@ -193,11 +193,23 @@ app.post('/api/login', async (req, res) => {
         try {
             // Find or Create user in database
             let user = await db.collection("users").findOne({ email: email.toLowerCase() });
+            const adminEmail = process.env.ADMIN_EMAIL || "admin@gmail.com";
+            
+            // If user exists, but is the admin email, ensure they have admin role
+            if (user && user.email.toLowerCase() === adminEmail.toLowerCase() && user.role !== "admin") {
+                await db.collection("users").updateOne(
+                    { _id: user._id },
+                    { $set: { role: "admin" } }
+                );
+                user.role = "admin";
+            }
+
             if (!user) {
+                const role = email.toLowerCase() === adminEmail.toLowerCase() ? "admin" : "supporter";
                 const result = await db.collection("users").insertOne({
                     email: email.toLowerCase(),
                     name: email.split('@')[0],
-                    role: "supporter",
+                    role: role,
                     authProvider: "firebase_google",
                     createdAt: new Date()
                 });
@@ -222,12 +234,42 @@ app.post('/api/login', async (req, res) => {
     const cleanAdminEmail = adminEmail.toLowerCase().trim();
 
     if (cleanEmail === cleanAdminEmail && password === adminPassword) {
-        return res.json({
-            id: "admin-id",
-            name: "System Admin",
-            email: adminEmail,
-            role: "admin"
-        });
+        try {
+            let adminUser = await db.collection("users").findOne({ email: cleanAdminEmail });
+            if (!adminUser) {
+                const result = await db.collection("users").insertOne({
+                    email: cleanAdminEmail,
+                    name: "System Admin",
+                    role: "admin",
+                    authProvider: "credentials",
+                    createdAt: new Date()
+                });
+                adminUser = await db.collection("users").findOne({ _id: result.insertedId });
+            } else if (adminUser.role !== "admin") {
+                await db.collection("users").updateOne(
+                    { _id: adminUser._id },
+                    { $set: { role: "admin" } }
+                );
+                adminUser.role = "admin";
+            }
+            
+            return res.json({
+                id: adminUser._id.toString(),
+                name: adminUser.name || "System Admin",
+                email: adminUser.email,
+                role: adminUser.role,
+                image: adminUser.image
+            });
+        } catch (err) {
+            console.error("Admin DB Sync Error:", err);
+            // Fallback to static id if DB fails
+            return res.json({
+                id: "admin-id",
+                name: "System Admin",
+                email: adminEmail,
+                role: "admin"
+            });
+        }
     }
 
     res.status(401).json({ message: "Invalid credentials" });
@@ -384,7 +426,7 @@ app.post('/api/events', async (req, res) => {
     try {
         console.log("[API] Creating event:", req.body.title);
         const { 
-            title, description, shortDescription, date, location, image, 
+            title, description, shortDescription, date, location, image, qrCode,
             registrationLink, activities, impactPoints, organizer, 
             startTime, endTime, terms, criteria, feedbackLink, otherInfo 
         } = req.body;
@@ -397,6 +439,7 @@ app.post('/api/events', async (req, res) => {
             date: date ? new Date(date) : new Date(), 
             location, 
             image, 
+            qrCode,
             registrationLink, 
             slug,
             activities,
@@ -421,7 +464,7 @@ app.post('/api/events', async (req, res) => {
 
 app.put('/api/events', async (req, res) => {
     try {
-        const { id, _id, date, title, activities, impactPoints, organizer, startTime, endTime, terms, criteria, feedbackLink, otherInfo, status, ...updateData } = req.body;
+        const { id, _id, date, title, activities, impactPoints, organizer, startTime, endTime, terms, criteria, feedbackLink, otherInfo, status, qrCode, ...updateData } = req.body;
         const updatePayload = { 
             ...updateData, 
             date: new Date(date),
@@ -434,6 +477,7 @@ app.put('/api/events', async (req, res) => {
             criteria,
             feedbackLink,
             otherInfo,
+            qrCode,
             status: status || 'scheduled'
         };
         if (title) {

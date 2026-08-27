@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../context/ToastContext";
 import { CheckCircle2, Loader2, ArrowRight, ChevronDown, Download } from "lucide-react";
@@ -26,6 +26,21 @@ export default function DonatePage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [isCountryOpen, setIsCountryOpen] = useState(false);
+    const [events, setEvents] = useState<any[]>([]);
+
+    // Fetch events for dynamic purposes and QR codes
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch("/api/events");
+                const data = await res.json();
+                setEvents(data);
+            } catch (err) {
+                console.error("Failed to fetch events", err);
+            }
+        };
+        fetchEvents();
+    }, []);
 
     const countries = [
         { name: "Nepal", code: "+977", iso: "np" },
@@ -36,13 +51,16 @@ export default function DonatePage() {
         { name: "UAE", code: "+971", iso: "ae" },
     ];
 
-    const purposes = [
+    const defaultPurposes = [
         "Education Support",
         "Health & Medical Aid",
         "Community Development",
         "Emergency Relief",
         "General Donation"
     ];
+
+    // Combine default purposes with event titles
+    const purposes = [...defaultPurposes, ...events.map(e => e.title)];
 
     const paymentMethods = ["eSewa", "Bank Transfer"];
 
@@ -183,6 +201,12 @@ export default function DonatePage() {
                 </motion.div>
             </main>
         );
+    }
+
+    const selectedEvent = events.find(e => e.title === formData.purpose);
+    let dynamicQrSrc = formData.paymentMethod === "Bank Transfer" ? "/Bank_QR.jpeg" : "/payment_qr.jpeg";
+    if (selectedEvent && selectedEvent.qrCode) {
+        dynamicQrSrc = selectedEvent.qrCode;
     }
 
     return (
@@ -430,7 +454,7 @@ export default function DonatePage() {
                                             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Scan to Pay via {formData.paymentMethod}</p>
                                             <div className="relative group p-4 bg-white rounded-2xl shadow-lg border border-gray-50 text-center">
                                                 <img
-                                                    src={formData.paymentMethod === "Bank Transfer" ? "/Bank_QR.jpeg" : "/payment_qr.jpeg"}
+                                                    src={dynamicQrSrc}
                                                     alt={`${formData.paymentMethod} QR`}
                                                     className="w-56 h-auto object-contain rounded-lg mx-auto"
                                                 />

@@ -13,6 +13,7 @@ interface Event {
     date: string;
     location: string;
     image: string;
+    qrCode?: string;
     registrationLink?: string;
     organizer?: string;
     startTime?: string;
@@ -33,6 +34,7 @@ export default function AdminEventsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingQR, setUploadingQR] = useState(false);
     const [activeTab, setActiveTab] = useState<"card" | "details">("card");
     const [formData, setFormData] = useState<Event>({
         title: "",
@@ -41,6 +43,7 @@ export default function AdminEventsPage() {
         date: "",
         location: "",
         image: "",
+        qrCode: "",
         registrationLink: "",
         organizer: "",
         startTime: "",
@@ -97,6 +100,36 @@ export default function AdminEventsPage() {
         } catch (err) {
             console.error("Upload failed", err);
             setUploadingImage(false);
+        }
+    };
+
+    const handleQRUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setUploadingQR(true);
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
+                const uploadUrl = "/api/upload";
+
+                const res = await fetch(uploadUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: base64Image })
+                });
+
+                if (!res.ok) throw new Error("Upload failed");
+
+                const data = await res.json();
+                if (data.url) setFormData(prev => ({ ...prev, qrCode: data.url }));
+                setUploadingQR(false);
+            };
+        } catch (err) {
+            console.error("Upload failed", err);
+            setUploadingQR(false);
         }
     };
 
@@ -307,6 +340,23 @@ export default function AdminEventsPage() {
                                                         onChange={handleImageUpload}
                                                         disabled={uploadingImage}
                                                         className="w-full text-xs text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-green-50 file:text-[#16A34A] hover:file:bg-green-100"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Donation QR Code (Optional)</label>
+                                                <div className="space-y-4">
+                                                    {formData.qrCode && (
+                                                        <div className="w-48 h-48 rounded-[20px] overflow-hidden border border-slate-100 shadow-xl relative group">
+                                                            <img src={formData.qrCode} className="w-full h-full object-cover" />
+                                                        </div>
+                                                    )}
+                                                    <input 
+                                                        type="file" 
+                                                        accept="image/*"
+                                                        onChange={handleQRUpload}
+                                                        disabled={uploadingQR}
+                                                        className="w-full text-xs text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-500 hover:file:bg-blue-100"
                                                     />
                                                 </div>
                                             </div>
