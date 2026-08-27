@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 interface GalleryImage {
     _id: string;
@@ -11,6 +12,7 @@ interface GalleryImage {
 
 export default function Gallery() {
     const [images, setImages] = useState<GalleryImage[]>([]);
+    const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
     
     useEffect(() => {
         fetch("/api/gallery")
@@ -25,21 +27,26 @@ export default function Gallery() {
     if (images.length === 0) return null;
 
     return (
-        <section className="relative w-full bg-[#050505] py-28 overflow-hidden">
+        <section className="relative w-full bg-slate-50 py-28 overflow-hidden">
+            <style jsx>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
             {/* SVG Wire Background */}
             <div className="absolute top-1/2 left-0 w-full h-[300px] -translate-y-[60%] pointer-events-none">
                 <svg width="100%" height="100%" viewBox="0 0 1200 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M-100,50 Q600,450 1300,50" fill="none" stroke="#666" strokeWidth="1.5" />
+                    <path d="M-100,50 Q600,450 1300,50" fill="none" stroke="#cbd5e1" strokeWidth="2" />
                 </svg>
             </div>
 
             <div className="max-w-[90rem] mx-auto px-4 relative z-10">
                 <div className="text-center mb-24">
-                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">Gallery</h2>
-                    <p className="text-slate-400 font-medium max-w-2xl mx-auto">A glimpse into our impactful moments.</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight mb-4">Gallery</h2>
+                    <p className="text-slate-500 font-medium max-w-2xl mx-auto">A glimpse into our impactful moments.</p>
                 </div>
 
-                <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 pb-16">
+                <div className="flex flex-nowrap justify-start md:justify-center items-center gap-10 md:gap-16 pb-16 pt-10 overflow-x-auto snap-x snap-mandatory px-8 md:px-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {images.map((img, i) => {
                         // Alternate rotations and Y translations to simulate hanging on a curved wire
                         const rotations = [-8, 6, -5, 9, -4, 7];
@@ -58,7 +65,8 @@ export default function Gallery() {
                                 animate={{ rotate: rotate }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                                className="relative bg-white p-3 pb-10 md:p-4 md:pb-14 shadow-2xl hover:scale-105 transition-transform duration-300 w-56 h-64 md:w-72 md:h-80 flex-shrink-0 cursor-pointer group"
+                                onClick={() => setSelectedImage(img)}
+                                className="relative bg-white p-3 pb-10 md:p-4 md:pb-14 shadow-2xl hover:scale-105 transition-transform duration-300 w-56 h-64 md:w-72 md:h-80 flex-shrink-0 cursor-pointer group snap-center"
                             >
                                 {/* Binder Clip Graphic */}
                                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-10 flex flex-col items-center z-20">
@@ -83,6 +91,48 @@ export default function Gallery() {
                     })}
                 </div>
             </div>
+
+            {/* Lightbox Modal */}
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <button
+                            className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors z-50 p-2"
+                            onClick={() => setSelectedImage(null)}
+                        >
+                            <X className="w-8 h-8" />
+                        </button>
+                        
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img 
+                                src={selectedImage.url} 
+                                alt={selectedImage.caption || "Full size"} 
+                                className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                            />
+                            {selectedImage.caption && (
+                                <div className="absolute bottom-[-40px] left-0 right-0 text-center">
+                                    <p className="text-white text-xl font-medium tracking-wide">
+                                        {selectedImage.caption}
+                                    </p>
+                                </div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 }
