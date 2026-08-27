@@ -51,6 +51,13 @@ export default function Footer() {
                             Donate Now
                             <Heart className="w-4 h-4 ml-1" />
                         </Link>
+                        <Link
+                            href="/donors"
+                            className="inline-flex items-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-600 text-sm font-bold py-3 px-6 rounded-[10px] border border-amber-100 transition-all cursor-pointer shadow-sm shadow-amber-600/5"
+                        >
+                            Top Donors List
+                            <Heart className="w-4 h-4 ml-1" />
+                        </Link>
                     </div>
                 </div>
 

@@ -32,7 +32,9 @@ import {
     TrendingDown,
     Save,
     Edit3,
-    Trash2
+    Trash2,
+    Plus,
+    X
 } from "lucide-react";
 
 interface Donation {
@@ -68,6 +70,12 @@ export default function DonationsPage() {
     const [editingValue, setEditingValue] = useState("");
     const [manualReceived, setManualReceived] = useState<number | null>(null);
     const [manualRemain, setManualRemain] = useState<number | null>(null);
+    
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [addForm, setAddForm] = useState<Partial<Donation>>({
+        status: 'verified',
+        createdAt: new Date().toISOString()
+    });
 
     useEffect(() => {
         fetchData();
@@ -201,6 +209,66 @@ export default function DonationsPage() {
     const totalReceived = manualReceived !== null ? manualReceived : autoTotalReceived;
     const remainingBalance = manualRemain !== null ? manualRemain : (totalReceived - totalSpent);
 
+    const handleAddDonation = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading(true);
+        try {
+            const res = await fetch("/api/donations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...addForm,
+                    paymentMethod: addForm.paymentMethod || "Offline Cash",
+                    purpose: addForm.purpose || "General Donation",
+                    createdAt: addForm.createdAt || new Date().toISOString(),
+                    verifiedAt: new Date().toISOString()
+                })
+            });
+            if (res.ok) {
+                showToast("Donation added successfully", "success");
+                setIsAddModalOpen(false);
+                setAddForm({ status: 'verified', createdAt: new Date().toISOString() });
+                fetchData();
+            } else {
+                showToast("Failed to add donation", "error");
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setActionLoading(true);
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
+                const uploadUrl = "/api/upload";
+
+                const res = await fetch(uploadUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: base64Image })
+                });
+
+                if (!res.ok) throw new Error("Upload failed");
+                const data = await res.json();
+                if (data.url) setAddForm(prev => ({ ...prev, paymentScreenshot: data.url }));
+            };
+        } catch (err) {
+            console.error(err);
+            showToast("Failed to upload image", "error");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const handleDelete = async (id: string) => {
         confirm({
             title: "Delete Record?",
@@ -261,6 +329,12 @@ export default function DonationsPage() {
                             <Wallet className="w-8 h-8 text-[#16A34A]" />
                             Treasury
                         </h1>
+                        <button 
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-full transition-colors flex items-center gap-1.5"
+                        >
+                            + Add Offline Donation
+                        </button>
                         <button 
                             onClick={handleDeleteAll}
                             className="text-[10px] font-black uppercase text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded-full transition-colors flex items-center gap-1.5"
@@ -577,6 +651,84 @@ export default function DonationsPage() {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            <AnimatePresence>
+                {isAddModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setIsAddModalOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                        >
+                            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
+                                <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                    <Plus className="w-4 h-4 text-blue-500" />
+                                    Record Offline Donation
+                                </h2>
+                                <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            
+                            <div className="p-6 overflow-y-auto">
+                                <form id="add-donation-form" onSubmit={handleAddDonation} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Donor Full Name</label>
+                                            <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Ram Sharma" value={addForm.fullName || ""} onChange={e => setAddForm({...addForm, fullName: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Phone Number</label>
+                                            <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. 98XXXXXXXX" value={addForm.phoneNumber || ""} onChange={e => setAddForm({...addForm, phoneNumber: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Address / Location</label>
+                                            <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Kathmandu" value={addForm.address || ""} onChange={e => setAddForm({...addForm, address: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Amount (NPR)</label>
+                                            <input required type="number" min="1" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors font-bold text-green-600" placeholder="e.g. 5000" value={addForm.amount || ""} onChange={e => setAddForm({...addForm, amount: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Email (Optional)</label>
+                                            <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. ram@example.com" value={addForm.email || ""} onChange={e => setAddForm({...addForm, email: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Date Received</label>
+                                            <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors" value={addForm.createdAt?.substring(0,10) || new Date().toISOString().substring(0,10)} onChange={e => setAddForm({...addForm, createdAt: new Date(e.target.value).toISOString()})} />
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Proof of Payment / Image (Optional)</label>
+                                        <div className="flex items-center gap-4">
+                                            {addForm.paymentScreenshot && (
+                                                <img src={addForm.paymentScreenshot} alt="Proof" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />
+                                            )}
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-500 hover:file:bg-blue-100" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-end gap-3">
+                                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2 rounded-xl text-xs font-black uppercase text-slate-500 hover:bg-slate-200 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" form="add-donation-form" disabled={actionLoading} className="px-8 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2">
+                                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Record"}
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>
