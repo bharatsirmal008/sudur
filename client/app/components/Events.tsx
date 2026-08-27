@@ -34,11 +34,12 @@ export default function Events() {
             })
             .then(data => {
                 if (!Array.isArray(data)) return;
-                const upcoming = data.filter((e: Event) => new Date(e.date) >= new Date()).slice(0, 3);
+                const activeEvents = data.filter((e: Event) => e.status !== 'closed');
+                const upcoming = activeEvents.filter((e: Event) => new Date(e.date) >= new Date()).slice(0, 3);
                 if (upcoming.length > 0) {
                     setEvents(upcoming);
                 } else {
-                    setEvents(data.slice(0, 3).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+                    setEvents(activeEvents.slice(0, 3).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
                 }
             })
             .catch(err => {

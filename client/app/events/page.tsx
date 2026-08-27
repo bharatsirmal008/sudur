@@ -17,7 +17,7 @@ export default async function AllEventsPage() {
     const fetchedEvents = await getEvents();
     const now = new Date();
 
-    const upcomingEvents = fetchedEvents.filter((event: any) => new Date(event.date) >= now);
+    const upcomingEvents = fetchedEvents.filter((event: any) => new Date(event.date) >= now && event.status !== 'closed');
 
     return (
         <div className="min-h-screen bg-[#f8fafc] py-20 font-sans">

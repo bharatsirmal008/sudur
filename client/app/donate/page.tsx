@@ -39,7 +39,8 @@ export default function DonatePage() {
                 ]);
                 const eventsData = await eventsRes.json();
                 const settingsData = await settingsRes.json();
-                setEvents(eventsData);
+                const activeEvents = Array.isArray(eventsData) ? eventsData.filter((e: any) => e.status !== 'closed') : [];
+                setEvents(activeEvents);
                 setGlobalSettings(settingsData);
             } catch (err) {
                 console.error("Failed to fetch data", err);
@@ -57,8 +58,9 @@ export default function DonatePage() {
         { name: "UAE", code: "+971", iso: "ae" },
     ];
 
+    // Handle both old string array and new object array {name, qrCode} for backward compatibility
     const defaultPurposes = globalSettings?.donationPurposes?.length 
-        ? globalSettings.donationPurposes 
+        ? globalSettings.donationPurposes.map((p: any) => typeof p === 'string' ? p : p.name)
         : [
             "Education Support",
             "Health & Medical Aid",
@@ -212,6 +214,7 @@ export default function DonatePage() {
     }
 
     const selectedEvent = events.find(e => e.title === formData.purpose);
+    const selectedPurpose = globalSettings?.donationPurposes?.find((p: any) => typeof p === 'object' && p.name === formData.purpose);
     
     const defaultBankQr = globalSettings?.bankQrCode || "/Bank_QR.jpeg";
     const defaultEsewaQr = globalSettings?.esewaQrCode || "/payment_qr.jpeg";
@@ -220,6 +223,8 @@ export default function DonatePage() {
     
     if (selectedEvent && selectedEvent.qrCode) {
         dynamicQrSrc = selectedEvent.qrCode;
+    } else if (selectedPurpose && selectedPurpose.qrCode) {
+        dynamicQrSrc = selectedPurpose.qrCode;
     }
 
     return (

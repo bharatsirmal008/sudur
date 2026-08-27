@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save, RefreshCw, AlertCircle, CheckCircle2, Loader2, Image as ImageIcon, User, Building, Mail } from "lucide-react";
+import { Save, RefreshCw, AlertCircle, CheckCircle2, Loader2, Image as ImageIcon, User, Building, Mail, X } from "lucide-react";
 
 interface SiteSettings {
     adminName: string;
@@ -13,7 +13,7 @@ interface SiteSettings {
     esewaQrCode?: string;
     bankDetails?: string;
     bankQrCode?: string;
-    donationPurposes?: string[];
+    donationPurposes?: { name: string, qrCode: string }[];
 }
 
 export default function AdminSettingsPage() {
@@ -47,7 +47,7 @@ export default function AdminSettingsPage() {
                         esewaQrCode: data.esewaQrCode || '',
                         bankDetails: data.bankDetails || '',
                         bankQrCode: data.bankQrCode || '',
-                        donationPurposes: data.donationPurposes || []
+                        donationPurposes: (data.donationPurposes || []).map((p: any) => typeof p === 'string' ? { name: p, qrCode: '' } : p)
                     });
                 }
             })
@@ -76,6 +76,39 @@ export default function AdminSettingsPage() {
             setMessage({ type: 'error', text: 'Failed to apply configuration.' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string, purposeIndex?: number) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
+                const res = await fetch("/api/upload", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: base64Image })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.url) {
+                        if (purposeIndex !== undefined && settings.donationPurposes) {
+                            const newPurposes = [...settings.donationPurposes];
+                            newPurposes[purposeIndex].qrCode = data.url;
+                            setSettings({ ...settings, donationPurposes: newPurposes });
+                        } else {
+                            setSettings({ ...settings, [field]: data.url });
+                        }
+                    }
+                }
+            };
+        } catch (err) {
+            console.error("Upload failed", err);
         }
     };
 
@@ -197,16 +230,20 @@ export default function AdminSettingsPage() {
                                 placeholder="e.g. 98XXXXXXX"
                             />
                         </label>
-                        <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">eSewa QR Code URL</span>
-                            <input
-                                type="text"
-                                value={settings.esewaQrCode}
-                                onChange={(e) => setSettings({ ...settings, esewaQrCode: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
-                                placeholder="/payment_qr.jpeg"
-                            />
-                        </label>
+                        <div className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">eSewa QR Code Image</span>
+                            <div className="flex items-center gap-4">
+                                {settings.esewaQrCode && (
+                                    <img src={settings.esewaQrCode} alt="eSewa QR" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />
+                                )}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageUpload(e, "esewaQrCode")}
+                                    className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#16A34A]/10 file:text-[#16A34A] hover:file:bg-[#16A34A]/20"
+                                />
+                            </div>
+                        </div>
                         <label className="block">
                             <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Bank Details</span>
                             <input
@@ -217,28 +254,79 @@ export default function AdminSettingsPage() {
                                 placeholder="e.g. Youth Association Of Purbichauki"
                             />
                         </label>
-                        <label className="block">
-                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Bank QR Code URL</span>
-                            <input
-                                type="text"
-                                value={settings.bankQrCode}
-                                onChange={(e) => setSettings({ ...settings, bankQrCode: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
-                                placeholder="/Bank_QR.jpeg"
-                            />
-                        </label>
+                        <div className="block">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Bank QR Code Image</span>
+                            <div className="flex items-center gap-4">
+                                {settings.bankQrCode && (
+                                    <img src={settings.bankQrCode} alt="Bank QR" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />
+                                )}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageUpload(e, "bankQrCode")}
+                                    className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#16A34A]/10 file:text-[#16A34A] hover:file:bg-[#16A34A]/20"
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    <label className="block">
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Donation Purposes (Comma Separated)</span>
-                        <textarea
-                            rows={3}
-                            value={settings.donationPurposes?.join(", ") || ""}
-                            onChange={(e) => setSettings({ ...settings, donationPurposes: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
-                            placeholder="Education Support, Health & Medical Aid, General Donation"
-                        />
-                    </label>
+                    <div className="block mt-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 block">Donation Purposes</span>
+                            <button
+                                type="button"
+                                onClick={() => setSettings({ ...settings, donationPurposes: [...(settings.donationPurposes || []), { name: '', qrCode: '' }] })}
+                                className="text-[10px] font-black uppercase px-3 py-1.5 bg-[#16A34A]/10 text-[#16A34A] rounded-lg hover:bg-[#16A34A]/20"
+                            >
+                                + Add Purpose
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {settings.donationPurposes?.map((purpose, index) => (
+                                <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50">
+                                    <div className="flex-1">
+                                        <input
+                                            type="text"
+                                            value={purpose.name}
+                                            onChange={(e) => {
+                                                const newPurposes = [...(settings.donationPurposes || [])];
+                                                newPurposes[index].name = e.target.value;
+                                                setSettings({ ...settings, donationPurposes: newPurposes });
+                                            }}
+                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-[#111827] focus:outline-none focus:border-[#16A34A] transition-colors"
+                                            placeholder="Purpose Name (e.g. Education Support)"
+                                        />
+                                    </div>
+                                    <div className="flex-1 flex items-center gap-3">
+                                        {purpose.qrCode && (
+                                            <img src={purpose.qrCode} alt="Purpose QR" className="w-12 h-12 object-cover rounded-md border border-slate-200" />
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleImageUpload(e, "qrCode", index)}
+                                            className="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-500 hover:file:bg-blue-100"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newPurposes = [...(settings.donationPurposes || [])];
+                                                newPurposes.splice(index, 1);
+                                                setSettings({ ...settings, donationPurposes: newPurposes });
+                                            }}
+                                            className="text-red-500 p-2 hover:bg-red-50 rounded-lg"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            {(!settings.donationPurposes || settings.donationPurposes.length === 0) && (
+                                <p className="text-center text-sm text-slate-400 py-4">No custom donation purposes added.</p>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {message && (
